@@ -179,7 +179,7 @@ Both files use ethers.js from CDN. No build step, no bundler, no framework.
 
 > ⚠️ **Before using these ABIs, read this:** Most system contracts are bootloader-internal and cannot be called via `eth_call` from outside the chain. Calling them returns `0x` or reverts silently. The table below marks each one clearly. For the majority of dApp use cases (reading balances, block numbers, gas prices) you do **not** need these — use `provider.getBalance()`, `provider.getBlockNumber()`, and `provider.getFeeData()` instead.
 >
-> Additionally, **paymaster support (`PAYMASTER_ABI`, `PAYMASTER_FLOW_ABI`) is not active on ADI Chain OS (Airbender).** The bootloader does not invoke paymaster contracts on the current protocol version. These ABIs are included for future compatibility.
+> Additionally, **paymaster support (`PAYMASTER_ABI`, `PAYMASTER_FLOW_ABI`) is not active on ADI Chain OS (Airbender).** The bootloader has an `AA_ENABLED` configuration flag for native account abstraction — it is currently disabled on the live deployment. These ABIs are included for when `AA_ENABLED=true` is shipped.
 
 ```typescript
 import {

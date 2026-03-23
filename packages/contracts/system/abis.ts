@@ -468,12 +468,14 @@ export const CONTRACT_DEPLOYER_ABI = [
 /**
  * Interface a paymaster contract must implement to sponsor gas.
  *
- * ⚠️  NOT ACTIVE on ADI Chain OS (Airbender). The bootloader does not call
- *     validateAndPayForPaymasterTransaction on the current protocol version.
- *     Deploying a contract that implements this interface will compile and
- *     deploy normally — it simply will never be invoked by the chain today.
+ * ⚠️  NOT ACTIVE on ADI Chain OS (Airbender). The bootloader has an `AA_ENABLED`
+ *     configuration flag that controls native account abstraction. It is currently
+ *     disabled on the ADI Chain OS deployment, so `validateAndPayForPaymasterTransaction`
+ *     is never called by the chain — deploying a paymaster compiles and deploys fine
+ *     but will never be invoked.
  *
- * This ABI is included for future compatibility when paymaster support lands.
+ * This ABI is included for future compatibility. When ADI Foundation enables
+ * `AA_ENABLED=true` in the bootloader, paymaster contracts will be active.
  * See also: ADIPaymaster.sol in @adi-devtools/contracts/src/
  */
 export const PAYMASTER_ABI = [
@@ -559,8 +561,9 @@ export const PAYMASTER_ABI = [
  * the paymasterInput field in a transaction.
  *
  * ⚠️  NOT ACTIVE on ADI Chain OS (Airbender). The paymasterInput field is
- *     ignored by the current protocol — there is no bootloader hook that reads it.
- *     Encoding paymasterInput correctly won't cause errors, but it has no effect.
+ *     ignored because `AA_ENABLED=false` in the current bootloader config.
+ *     There is no bootloader hook that reads it. Encoding paymasterInput
+ *     correctly won't cause errors, but it has no effect.
  *
  * Usage with ethers.js (for future use):
  *   const iface = new ethers.Interface(PAYMASTER_FLOW_ABI);
