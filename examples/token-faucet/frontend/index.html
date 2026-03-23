@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ADI Chain Testnet Faucet</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1e2130;
+      --surface2: #252838;
+      --border: #2d3248;
+      --accent: #6366f1;
+      --accent-hover: #818cf8;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --subtle: #94a3b8;
+      --green: #4ade80;
+      --green-bg: #052e16;
+      --green-border: #166534;
+      --red: #f87171;
+      --red-bg: #450a0a;
+      --red-border: #7f1d1d;
+      --yellow: #fbbf24;
+      --yellow-bg: #1c1400;
+      --yellow-border: #78350f;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container { max-width: 560px; margin: 0 auto; }
+
+    /* header */
+    .header { text-align: center; margin-bottom: 2rem; }
+    .adi-logo { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.75rem; }
+    .adi-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    h1 { font-size: 1.9rem; font-weight: 700; }
+    .subtitle { color: var(--subtle); margin-top: 0.4rem; font-size: 0.9rem; }
+
+    /* card */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 1.25rem; }
+    .card-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .card-title { font-size: 0.95rem; font-weight: 700; }
+    .card-body { padding: 1.5rem; }
+
+    /* stats row */
+    .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; text-align: center; }
+    .stat-value { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
+    .stat-label { font-size: 0.7rem; color: var(--muted); margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* claim section */
+    .claim-section { text-align: center; }
+    .claim-amount { font-size: 2.8rem; font-weight: 800; color: var(--green); line-height: 1; margin-bottom: 0.3rem; }
+    .claim-unit { font-size: 1rem; color: var(--muted); margin-bottom: 1.5rem; }
+    .claim-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      padding: 0.85rem 3rem; border-radius: 10px; font-size: 1rem; font-weight: 700;
+      cursor: pointer; border: none; background: var(--accent); color: white;
+      transition: opacity 0.15s, transform 0.1s; width: 100%; max-width: 320px;
+    }
+    .claim-btn:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+    .claim-btn:active:not(:disabled) { transform: translateY(0); }
+    .claim-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* cooldown bar */
+    .cooldown-wrap { margin-top: 1.25rem; }
+    .cooldown-label { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.5rem; }
+    .cooldown-track { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .cooldown-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.5s; }
+    .cooldown-time { font-size: 0.85rem; color: var(--yellow); font-weight: 600; margin-top: 0.4rem; }
+    .ready-pill { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--green); margin-top: 0.4rem; }
+
+    /* wallet */
+    .wallet-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; padding: 0.85rem 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; flex-wrap: wrap; }
+    .wallet-addr { font-family: monospace; font-size: 0.82rem; color: var(--subtle); }
+    .wallet-balance { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+    .chain-badge { background: var(--accent); color: white; font-size: 0.68rem; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+
+    /* buttons */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.55rem 1.1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: none; transition: opacity 0.15s, transform 0.1s; white-space: nowrap; }
+    .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.78rem; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* history */
+    .history-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+    .history-item { display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem; padding: 0.6rem 0.75rem; background: var(--surface2); border-radius: 8px; gap: 0.5rem; }
+    .history-addr { font-family: monospace; color: var(--subtle); }
+    .history-amount { color: var(--green); font-weight: 600; white-space: nowrap; }
+    .history-time { color: var(--muted); font-size: 0.72rem; white-space: nowrap; }
+    .history-empty { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 1rem; }
+
+    /* owner panel */
+    .owner-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.35rem; display: block; text-transform: uppercase; letter-spacing: 0.05em; }
+    .form-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 0.55rem 0.8rem; color: var(--text); font-size: 0.88rem; outline: none; transition: border-color 0.15s; }
+    .form-input:focus { border-color: var(--accent); }
+    .form-row { margin-bottom: 0; }
+
+    /* toast */
+    .toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; z-index: 999; }
+    .toast { padding: 0.75rem 1.1rem; border-radius: 10px; font-size: 0.85rem; font-weight: 500; max-width: 320px; word-break: break-word; animation: slideIn 0.2s ease; }
+    .toast-ok   { background: var(--green-bg);  color: var(--green); border: 1px solid var(--green-border); }
+    .toast-err  { background: var(--red-bg);    color: var(--red);   border: 1px solid var(--red-border); }
+    .toast-info { background: var(--surface2);  color: var(--subtle); border: 1px solid var(--border); }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="adi-logo"><span class="adi-dot"></span> ADI Chain Testnet</div>
+    <h1>Testnet Faucet</h1>
+    <p class="subtitle">Get free ADI tokens to deploy contracts and test your dApps</p>
+  </div>
+
+  <!-- Wallet row -->
+  <div class="wallet-row">
+    <div>
+      <div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:0.2rem;">Your Wallet</div>
+      <div class="wallet-addr" id="walletAddr">Not connected</div>
+      <div class="wallet-balance" id="walletBalance" style="margin-top:0.2rem;color:var(--muted);">— ADI</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.5rem;">
+      <span class="chain-badge">ADI Testnet</span>
+      <button class="btn btn-primary" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+    </div>
+  </div>
+
+  <!-- Faucet stats -->
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="stat-value" id="statBalance">—</div>
+      <div class="stat-label">Faucet Balance (ADI)</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value" id="statDrip">—</div>
+      <div class="stat-label">Per Claim (ADI)</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value" id="statCooldown">—</div>
+      <div class="stat-label">Cooldown</div>
+    </div>
+  </div>
+
+  <!-- Claim card -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Claim Testnet ADI</span>
+    </div>
+    <div class="card-body">
+      <div class="claim-section">
+        <div class="claim-amount" id="claimAmt">0.5</div>
+        <div class="claim-unit">ADI per claim</div>
+        <button class="claim-btn" id="claimBtn" onclick="claim()" disabled>
+          Connect wallet to claim
+        </button>
+        <div class="cooldown-wrap" id="cooldownWrap" style="display:none;">
+          <div class="cooldown-label">Cooldown progress</div>
+          <div class="cooldown-track"><div class="cooldown-fill" id="cooldownFill" style="width:0%"></div></div>
+          <div class="cooldown-time" id="cooldownTime"></div>
+        </div>
+        <div class="ready-pill" id="readyPill" style="display:none;">
+          ✓ Ready to claim
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent claims -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Recent Claims</span>
+      <button class="btn btn-outline btn-sm" onclick="loadHistory()">Refresh</button>
+    </div>
+    <div class="card-body" style="padding:1rem;">
+      <ul class="history-list" id="historyList">
+        <li class="history-empty">Loading...</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Owner panel (shown only if connected wallet = owner) -->
+  <div class="card" id="ownerPanel" style="display:none;">
+    <div class="card-header">
+      <span class="card-title">Owner Controls</span>
+      <span style="font-size:0.72rem;color:var(--accent);">You own this faucet</span>
+    </div>
+    <div class="card-body">
+      <div class="owner-grid" style="margin-bottom:1rem;">
+        <div class="form-row">
+          <label class="form-label">Drip Amount (ADI)</label>
+          <input class="form-input" id="newDrip" placeholder="0.5" type="number" min="0" step="0.1" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">Cooldown (hours)</label>
+          <input class="form-input" id="newCooldown" placeholder="24" type="number" min="0" step="1" />
+        </div>
+      </div>
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <button class="btn btn-primary btn-sm" onclick="updateDrip()">Set Drip Amount</button>
+        <button class="btn btn-primary btn-sm" onclick="updateCooldown()">Set Cooldown</button>
+        <button class="btn btn-outline btn-sm" onclick="fundFaucet()">Fund (1 ADI)</button>
+        <button class="btn btn-outline btn-sm" style="color:var(--red);border-color:var(--red-border);" onclick="ownerWithdraw()">Withdraw All</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script type="module">
+import { BrowserProvider, Contract, JsonRpcProvider, formatEther, parseEther }
+  from "https://esm.sh/ethers@6?bundle";
+
+// ─── Config ───────────────────────────────────────────────────────────────────
+// TODO: Replace with your deployed faucet address after running the deploy script
+const CONTRACT_ADDRESS = "0x4228E476153928399416453723E4c1D8cADEaED1";
+
+const ADI_TESTNET = {
+  chainId: "0x1869F",
+  chainName: "ADI Testnet",
+  rpcUrls: ["https://rpc.ab.testnet.adifoundation.ai"],
+  nativeCurrency: { name: "ADI", symbol: "ADI", decimals: 18 },
+  blockExplorerUrls: ["https://explorer.ab.testnet.adifoundation.ai"],
+};
+
+const CONTRACT_ABI = [
+  "function dripAmount() view returns (uint256)",
+  "function cooldown() view returns (uint256)",
+  "function lastClaimTime(address) view returns (uint256)",
+  "function timeUntilNextClaim(address) view returns (uint256)",
+  "function owner() view returns (address)",
+  "function drip()",
+  "function setDripAmount(uint256)",
+  "function setCooldown(uint256)",
+  "function withdraw()",
+  "event Dripped(address indexed recipient, uint256 amount)",
+];
+
+// ─── State ────────────────────────────────────────────────────────────────────
+const readProvider = new JsonRpcProvider(ADI_TESTNET.rpcUrls[0]);
+const readContract  = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, readProvider);
+let provider, signer, contract;
+let currentAddress = null;
+let cooldownInterval = null;
+let cooldownDuration = 0;
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+function toast(msg, type = "info") {
+  const el = document.createElement("div");
+  el.className = "toast toast-" + type;
+  el.textContent = msg;
+  document.getElementById("toastContainer").appendChild(el);
+  setTimeout(() => el.remove(), 4500);
+}
+
+// ─── Wallet ───────────────────────────────────────────────────────────────────
+async function connectWallet() {
+  if (!window.ethereum) return toast("MetaMask not detected.", "err");
+  try {
+    try {
+      await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: ADI_TESTNET.chainId }] });
+    } catch (e) {
+      if (e.code === 4902) await window.ethereum.request({ method: "wallet_addEthereumChain", params: [ADI_TESTNET] });
+      else throw e;
+    }
+    provider = new BrowserProvider(window.ethereum);
+    signer   = await provider.getSigner();
+    contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+    currentAddress = await signer.getAddress();
+
+    document.getElementById("walletAddr").textContent = currentAddress;
+    document.getElementById("connectBtn").textContent = "Connected";
+    document.getElementById("connectBtn").disabled = true;
+
+    await Promise.all([loadFaucetInfo(), loadWalletBalance(), loadHistory()]);
+  } catch (err) {
+    toast("Connection failed: " + err.message, "err");
+  }
+}
+window.connectWallet = connectWallet;
+
+// ─── Faucet info ──────────────────────────────────────────────────────────────
+async function loadFaucetInfo() {
+  try {
+    const rc = contract || readContract;
+    const [faucetBal, drip, cd, ownerAddr] = await Promise.all([
+      readProvider.getBalance(CONTRACT_ADDRESS),
+      rc.dripAmount(),
+      rc.cooldown(),
+      rc.owner(),
+    ]);
+
+    cooldownDuration = Number(cd);
+    const dripADI = parseFloat(formatEther(drip));
+
+    document.getElementById("statBalance").textContent = parseFloat(formatEther(faucetBal)).toFixed(2);
+    document.getElementById("statDrip").textContent    = dripADI;
+    document.getElementById("claimAmt").textContent    = dripADI;
+    document.getElementById("statCooldown").textContent = formatDuration(cooldownDuration);
+
+    // Show owner panel
+    if (currentAddress && ownerAddr.toLowerCase() === currentAddress.toLowerCase()) {
+      document.getElementById("ownerPanel").style.display = "block";
+    }
+
+    await updateClaimState();
+  } catch (err) {
+    console.error("loadFaucetInfo:", err.message);
+  }
+}
+window.loadFaucetInfo = loadFaucetInfo;
+
+// ─── Claim state + cooldown timer ─────────────────────────────────────────────
+async function updateClaimState() {
+  if (!currentAddress) return;
+  const rc = contract || readContract;
+  try {
+    const wait = Number(await rc.timeUntilNextClaim(currentAddress));
+    clearInterval(cooldownInterval);
+
+    if (wait === 0) {
+      // ready to claim
+      document.getElementById("claimBtn").disabled = false;
+      document.getElementById("claimBtn").textContent = "Claim ADI";
+      document.getElementById("cooldownWrap").style.display = "none";
+      document.getElementById("readyPill").style.display = "inline-flex";
+    } else {
+      // on cooldown
+      document.getElementById("claimBtn").disabled = true;
+      document.getElementById("claimBtn").textContent = "On cooldown";
+      document.getElementById("readyPill").style.display = "none";
+      document.getElementById("cooldownWrap").style.display = "block";
+
+      let remaining = wait;
+      const total  = cooldownDuration > 0 ? cooldownDuration : wait;
+
+      function tick() {
+        if (remaining <= 0) {
+          clearInterval(cooldownInterval);
+          document.getElementById("claimBtn").disabled = false;
+          document.getElementById("claimBtn").textContent = "Claim ADI";
+          document.getElementById("cooldownWrap").style.display = "none";
+          document.getElementById("readyPill").style.display = "inline-flex";
+          return;
+        }
+        const pct = Math.round(((total - remaining) / total) * 100);
+        document.getElementById("cooldownFill").style.width = pct + "%";
+        document.getElementById("cooldownTime").textContent = "Available in " + formatDuration(remaining);
+        remaining--;
+      }
+      tick();
+      cooldownInterval = setInterval(tick, 1000);
+    }
+  } catch (err) {
+    console.error("updateClaimState:", err.message);
+  }
+}
+
+// ─── Claim ────────────────────────────────────────────────────────────────────
+async function claim() {
+  if (!contract) return toast("Connect wallet first.", "err");
+  const btn = document.getElementById("claimBtn");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Sending...';
+  try {
+    const tx = await contract.drip();
+    toast("Transaction sent — waiting for confirmation...", "info");
+    const receipt = await tx.wait();
+    toast("ADI claimed! ✔ Block: " + receipt.blockNumber, "ok");
+    await Promise.all([loadFaucetInfo(), loadWalletBalance(), loadHistory()]);
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = "Claim ADI";
+    const msg = err?.reason || err?.message || "Unknown error";
+    toast("Claim failed: " + msg, "err");
+  }
+}
+window.claim = claim;
+
+// ─── Wallet balance ───────────────────────────────────────────────────────────
+async function loadWalletBalance() {
+  if (!currentAddress) return;
+  try {
+    const bal = await readProvider.getBalance(currentAddress);
+    document.getElementById("walletBalance").textContent =
+      parseFloat(formatEther(bal)).toFixed(4) + " ADI";
+    document.getElementById("walletBalance").style.color = "var(--text)";
+  } catch (_) {}
+}
+
+// ─── History ──────────────────────────────────────────────────────────────────
+async function loadHistory() {
+  const list = document.getElementById("historyList");
+  list.innerHTML = '<li class="history-empty">Loading...</li>';
+  try {
+    const rc = contract || readContract;
+    const filter = rc.filters.Dripped();
+    const logs = await rc.queryFilter(filter, -2000);  // last ~2000 blocks
+
+    if (logs.length === 0) {
+      list.innerHTML = '<li class="history-empty">No claims yet — be the first!</li>';
+      return;
+    }
+
+    list.innerHTML = "";
+    const recent = [...logs].reverse().slice(0, 15);
+    for (const log of recent) {
+      const addr   = log.args[0];
+      const amount = log.args[1];
+      const block  = await readProvider.getBlock(log.blockNumber);
+      const ago    = block ? timeAgo(Number(block.timestamp)) : "block " + log.blockNumber;
+      const li = document.createElement("li");
+      li.className = "history-item";
+      li.innerHTML = `
+        <span class="history-addr">${addr.slice(0,6)}...${addr.slice(-4)}</span>
+        <span class="history-amount">+${formatEther(amount)} ADI</span>
+        <span class="history-time">${ago}</span>
+      `;
+      list.appendChild(li);
+    }
+  } catch (err) {
+    list.innerHTML = '<li class="history-empty">Failed to load: ' + escapeHtml(err.message) + '</li>';
+  }
+}
+window.loadHistory = loadHistory;
+
+// ─── Owner actions ────────────────────────────────────────────────────────────
+async function updateDrip() {
+  if (!contract) return toast("Connect wallet first.", "err");
+  const val = parseFloat(document.getElementById("newDrip").value);
+  if (isNaN(val) || val <= 0) return toast("Enter a valid drip amount.", "err");
+  try {
+    toast("Setting drip amount...", "info");
+    const tx = await contract.setDripAmount(parseEther(val.toString()));
+    await tx.wait();
+    toast("Drip amount updated! ✔", "ok");
+    await loadFaucetInfo();
+  } catch (err) {
+    toast("Failed: " + (err?.reason || err?.message), "err");
+  }
+}
+window.updateDrip = updateDrip;
+
+async function updateCooldown() {
+  if (!contract) return toast("Connect wallet first.", "err");
+  const hours = parseFloat(document.getElementById("newCooldown").value);
+  if (isNaN(hours) || hours < 0) return toast("Enter a valid cooldown in hours.", "err");
+  try {
+    toast("Setting cooldown...", "info");
+    const tx = await contract.setCooldown(BigInt(Math.round(hours * 3600)));
+    await tx.wait();
+    toast("Cooldown updated! ✔", "ok");
+    await loadFaucetInfo();
+  } catch (err) {
+    toast("Failed: " + (err?.reason || err?.message), "err");
+  }
+}
+window.updateCooldown = updateCooldown;
+
+async function fundFaucet() {
+  if (!signer) return toast("Connect wallet first.", "err");
+  try {
+    toast("Sending 1 ADI to faucet...", "info");
+    const tx = await signer.sendTransaction({ to: CONTRACT_ADDRESS, value: parseEther("1") });
+    await tx.wait();
+    toast("Faucet funded! ✔", "ok");
+    await loadFaucetInfo();
+  } catch (err) {
+    toast("Failed: " + (err?.reason || err?.message), "err");
+  }
+}
+window.fundFaucet = fundFaucet;
+
+async function ownerWithdraw() {
+  if (!contract) return toast("Connect wallet first.", "err");
+  if (!confirm("Withdraw all ADI from the faucet back to your wallet?")) return;
+  try {
+    toast("Withdrawing...", "info");
+    const tx = await contract.withdraw();
+    await tx.wait();
+    toast("Withdrawn! ✔", "ok");
+    await Promise.all([loadFaucetInfo(), loadWalletBalance()]);
+  } catch (err) {
+    toast("Failed: " + (err?.reason || err?.message), "err");
+  }
+}
+window.ownerWithdraw = ownerWithdraw;
+
+// ─── Utils ────────────────────────────────────────────────────────────────────
+function formatDuration(secs) {
+  if (secs < 60)   return secs + "s";
+  if (secs < 3600) return Math.round(secs / 60) + "m";
+  if (secs < 86400) return Math.round(secs / 3600) + "h";
+  return Math.round(secs / 86400) + "d";
+}
+
+function timeAgo(ts) {
+  const diff = Math.floor(Date.now() / 1000) - ts;
+  if (diff < 60)   return diff + "s ago";
+  if (diff < 3600) return Math.floor(diff / 60) + "m ago";
+  if (diff < 86400) return Math.floor(diff / 3600) + "h ago";
+  return Math.floor(diff / 86400) + "d ago";
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+window.addEventListener("load", async () => {
+  try { await loadFaucetInfo(); } catch (_) {}
+  try { await loadHistory();    } catch (_) {}
+  if (window.ethereum?.selectedAddress) connectWallet();
+});
+
+if (window.ethereum) {
+  window.ethereum.on("accountsChanged", () => location.reload());
+  window.ethereum.on("chainChanged",    () => location.reload());
+}
+</script>
+</body>
+</html>
