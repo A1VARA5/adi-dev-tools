@@ -14,9 +14,12 @@
 /**
  * The ADI gas token interface.
  * ADI Chain uses ADI as its native gas token instead of ETH.
- * NOTE: balanceOf takes a uint256 (not address) — this is intentional on ZKsync-based chains.
- * Use provider.getBalance(address) for normal balance reads.
- * Use this ABI only for withdraw / withdrawWithMessage.
+ *
+ * ⚠️  TRAP: balanceOf(uint256) takes a uint256, NOT an address.
+ *     Passing an address will silently return 0. This is a ZKsync-inherited quirk.
+ *     For normal balance reads always use: provider.getBalance(address)
+ *
+ * Use this ABI only for: withdraw() and withdrawWithMessage() (L2 → L1 bridging).
  */
 export const BASE_TOKEN_ABI = [
   {
@@ -463,10 +466,14 @@ export const CONTRACT_DEPLOYER_ABI = [
 
 // ─── IPaymaster ───────────────────────────────────────────────────────────────
 /**
- * Interface your paymaster contract must implement to sponsor gas on ADI Chain.
- * Deploy a contract that implements both validateAndPayForPaymasterTransaction
- * and postTransaction, then fund it with ADI tokens.
+ * Interface a paymaster contract must implement to sponsor gas.
  *
+ * ⚠️  NOT ACTIVE on ADI Chain OS (Airbender). The bootloader does not call
+ *     validateAndPayForPaymasterTransaction on the current protocol version.
+ *     Deploying a contract that implements this interface will compile and
+ *     deploy normally — it simply will never be invoked by the chain today.
+ *
+ * This ABI is included for future compatibility when paymaster support lands.
  * See also: ADIPaymaster.sol in @adi-devtools/contracts/src/
  */
 export const PAYMASTER_ABI = [
@@ -546,12 +553,16 @@ export const PAYMASTER_ABI = [
 
 // ─── IPaymasterFlow ───────────────────────────────────────────────────────────
 /**
- * Helper interface for encoding paymaster input when sending a sponsored transaction.
+ * Helper interface for encoding paymaster input.
  *
  * This is NOT implemented by any contract — it is only used for ABI-encoding
  * the paymasterInput field in a transaction.
  *
- * Usage with ethers.js:
+ * ⚠️  NOT ACTIVE on ADI Chain OS (Airbender). The paymasterInput field is
+ *     ignored by the current protocol — there is no bootloader hook that reads it.
+ *     Encoding paymasterInput correctly won't cause errors, but it has no effect.
+ *
+ * Usage with ethers.js (for future use):
  *   const iface = new ethers.Interface(PAYMASTER_FLOW_ABI);
  *   const paymasterInput = iface.encodeFunctionData("general", ["0x"]);
  */

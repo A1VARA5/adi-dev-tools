@@ -30,10 +30,36 @@ ADI Chain is fully EVM-compatible but had zero developer-facing tooling. This mo
 | Example | Stack | Description |
 |---|---|---|
 | [`examples/counter-dapp`](examples/counter-dapp) | Hardhat + HTML | Simple on-chain counter — increment, set value, read state |
-| [`examples/voting-dapp`](examples/voting-dapp) | Foundry + HTML | Production-ready on-chain voting dApp with proposals, vote counts and progress bars |
-| [`examples/gasless-voting-dapp`](examples/gasless-voting-dapp) | Foundry + HTML | Voting dApp with an on-chain paymaster contract (reference) — demonstrates ADI’s EVM compatibility and ZKsync-style contract architecture |
+| [`examples/voting-dapp`](examples/voting-dapp) | Foundry + HTML | Production-ready voting dApp — proposals, vote counts, progress bars, single vote per wallet |
+| [`examples/gasless-voting-dapp`](examples/gasless-voting-dapp) | Foundry + HTML | Voting dApp + `GaslessPaymaster.sol` reference contract — **paymaster is not active on current ADI Chain OS**, included for future protocol support |
 
-All examples include a ready-to-use single-file HTML frontend that connects to MetaMask — no build step, no bundler.
+All examples include a single-file HTML frontend (ethers.js from CDN) that connects to MetaMask — no build step, no bundler.
+
+---
+
+## Contract templates
+
+`@adi-devtools/contracts` ships auditable Solidity templates for the most common ADI Chain use cases. These work today — standard EVM, no chain-specific quirks.
+
+| Contract | File | What it does |
+|---|---|---|
+| `ADIVoting.sol` | `src/ADIVoting.sol` | On-chain poll — one wallet = one vote, proposals array, `closeVoting()`, `winningProposal()` |
+| `ADIToken.sol` | `src/ADIToken.sol` | ERC-20 with mint/burn, compatible with ADI's custom gas token model |
+| `ADINFT.sol` | `src/ADINFT.sol` | ERC-721 with URI storage, optimised for ADI's low fees |
+| `ADIFaucet.sol` | `src/ADIFaucet.sol` | Testnet token faucet — rate-limited per wallet |
+| `ADIPaymaster.sol` | `src/ADIPaymaster.sol` | ZKsync-style paymaster skeleton — for when bootloader paymaster support lands |
+
+```bash
+npm i @adi-devtools/contracts
+```
+
+```solidity
+// SPDX-License-Identifier: MIT
+import "@adi-devtools/contracts/src/ADIVoting.sol";
+import "@adi-devtools/contracts/src/ADIToken.sol";
+```
+
+These are the most immediately useful part of this package — the system contract ABIs have important caveats (see below).
 
 ---
 
@@ -149,9 +175,11 @@ Both files use ethers.js from CDN. No build step, no bundler, no framework.
 
 ## System contract ABIs
 
-`@adi-devtools/contracts` ships a `/system` subpath with typed TypeScript exports for every ADI Chain system contract.
+`@adi-devtools/contracts` ships a `/system` subpath with typed TypeScript exports for every ADI Chain system contract address and ABI.
 
-**Why this matters:** ADI Chain is built on ZKsync's stack and comes with a set of built-in contracts deployed at fixed addresses. Without this package you would need to manually look up each address in the source code and write your own ABIs. With it, you get everything pre-typed and importable in one line.
+> ⚠️ **Before using these ABIs, read this:** Most system contracts are bootloader-internal and cannot be called via `eth_call` from outside the chain. Calling them returns `0x` or reverts silently. The table below marks each one clearly. For the majority of dApp use cases (reading balances, block numbers, gas prices) you do **not** need these — use `provider.getBalance()`, `provider.getBlockNumber()`, and `provider.getFeeData()` instead.
+>
+> Additionally, **paymaster support (`PAYMASTER_ABI`, `PAYMASTER_FLOW_ABI`) is not active on ADI Chain OS (Airbender).** The bootloader does not invoke paymaster contracts on the current protocol version. These ABIs are included for future compatibility.
 
 ```typescript
 import {
@@ -179,19 +207,19 @@ const provider = new ethers.JsonRpcProvider("https://rpc.ab.testnet.adifoundatio
 
 ### What each export is for
 
-| Contract | Address constant | ABI constant | Use case |
-|---|---|---|---|
-| ADI gas token | `BASE_TOKEN_ADDRESS` | `BASE_TOKEN_ABI` | Withdraw ADI from L2 to L1 |
-| Nonce holder | `NONCE_HOLDER_ADDRESS` | `NONCE_HOLDER_ABI` | Custom smart account nonce management |
-| System context | `SYSTEM_CONTEXT_ADDRESS` | `SYSTEM_CONTEXT_ABI` | On-chain: read chainId, gas price, block number from inside a contract |
-| L1 messenger | `L1_MESSENGER_ADDRESS` | `L1_MESSENGER_ABI` | Send arbitrary messages from L2 → L1 |
-| Contract deployer | `CONTRACT_DEPLOYER_ADDRESS` | `CONTRACT_DEPLOYER_ABI` | Compute CREATE2 addresses, read account AA version |
-| Paymaster | `ENTRYPOINT_V07_ADDRESS` | `PAYMASTER_ABI` | Implement a custom ERC-4337 paymaster |
-| Paymaster flow | — | `PAYMASTER_FLOW_ABI` | Encode paymaster input for gasless transactions |
+| Contract | Callable externally? | Use case |
+|---|---|---|
+| `BASE_TOKEN_ADDRESS` / `BASE_TOKEN_ABI` | ✅ `withdraw`, `withdrawWithMessage` | Withdraw ADI from L2 to L1. Note: `balanceOf` takes `uint256`, not `address` — use `provider.getBalance(address)` for normal balance reads |
+| `NONCE_HOLDER_ADDRESS` / `NONCE_HOLDER_ABI` | ✅ `getMinNonce`, `getRawNonce` | Useful only for custom smart account factories |
+| `SYSTEM_CONTEXT_ADDRESS` / `SYSTEM_CONTEXT_ABI` | ❌ bootloader-internal | Use in Solidity contracts only. Off-chain: use `provider.getNetwork()`, `provider.getFeeData()`, `provider.getBlockNumber()` |
+| `L1_MESSENGER_ADDRESS` / `L1_MESSENGER_ABI` | ✅ `sendToL1` | Send L2→L1 messages — ZK-proved in the batch |
+| `CONTRACT_DEPLOYER_ADDRESS` / `CONTRACT_DEPLOYER_ABI` | ✅ `getNewAddressCreate2`, `getAccountInfo` | Compute CREATE2 addresses before deploying |
+| `PAYMASTER_ABI` | ⏳ future | Interface for paymaster contracts — **bootloader does not invoke paymasters on current ADI Chain OS** |
+| `PAYMASTER_FLOW_ABI` | ⏳ future | Encodes paymaster input selector — only relevant when paymaster support is active |
 
-### Gasless transactions (paymaster input encoding)
+### Gasless transactions (future — not active on current ADI Chain OS)
 
-The most common use case is encoding the `paymasterInput` field for ERC-4337 transactions:
+> **Note:** ADI Chain OS (Airbender) does not currently invoke paymaster contracts. The bootloader calls paymasters on ZKSync Era but not on this stack. The encoding below is correct and will work when paymaster support is added.
 
 ```typescript
 import { PAYMASTER_FLOW_ABI } from "@adi-devtools/contracts/system";
