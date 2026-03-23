@@ -5,10 +5,10 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present",
-    "lint": "npm run lint --workspaces --if-present",
-    "clean": "npm run clean --workspaces --if-present"
+    "build": "pnpm -r build",
+    "test": "pnpm -r test --if-present",
+    "lint": "pnpm -r lint --if-present",
+    "clean": "pnpm -r clean --if-present"
   },
   "devDependencies": {
     "typescript": "^5.4.0"
