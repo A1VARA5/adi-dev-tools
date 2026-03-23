@@ -1,77 +1,72 @@
-/**
- * hardhat-adi-network
+﻿/**
+ * hardhat-adi-network - Hardhat 3 plugin
  *
- * A Hardhat plugin that automatically injects ADI testnet and mainnet
- * network configurations. Install once, then use --network adi-testnet
- * or --network adi-mainnet in every project.
+ * Automatically injects ADI testnet and mainnet network configs.
  *
  * Usage in hardhat.config.ts:
  *
- *   import "hardhat-adi-network";
+ *   import { defineConfig } from "hardhat/config";
+ *   import adiNetworkPlugin from "hardhat-adi-network";
  *
- *   // That's it. The following networks are now available:
- *   //   npx hardhat compile --network adi-testnet
- *   //   npx hardhat ignition deploy ... --network adi-testnet
- *   //   npx hardhat ignition deploy ... --network adi-mainnet
- *
- * You can still override any setting manually in your config:
- *
- *   networks: {
- *     "adi-testnet": {
- *       ...adiTestnetConfig,
- *       accounts: [process.env.PRIVATE_KEY!],
- *     }
- *   }
+ *   export default defineConfig({
+ *     plugins: [adiNetworkPlugin],
+ *     networks: {
+ *       "adi-testnet": {
+ *         accounts: [process.env.TESTNET_PRIVATE_KEY],
+ *       },
+ *     },
+ *   });
  */
 
-import { extendConfig } from "hardhat/config";
+import type { HardhatPlugin } from "hardhat/types/plugins";
 import { ADI_TESTNET, ADI_MAINNET } from "@adi-devtools/sdk";
 
-// Augment Hardhat's type system so TypeScript knows about our network names
-import "hardhat/types/config";
-
-declare module "hardhat/types/config" {
-  interface HardhatNetworksUserConfig {
-    "adi-testnet"?: HttpNetworkUserConfig;
-    "adi-mainnet"?: HttpNetworkUserConfig;
-  }
-}
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type HttpNetworkUserConfig = any;
+type AnyFn = (config: any, next: any) => Promise<any>;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-extendConfig((config: any, userConfig: any) => {
-  // Build base configs from the SDK constants
-  const testnetBase: HttpNetworkUserConfig = {
-    type: "http",
-    chainType: "generic",
-    url: ADI_TESTNET.rpcUrl,
-    chainId: ADI_TESTNET.chainId,
-  };
+const plugin: HardhatPlugin = {
+  id: "hardhat-adi-network",
+  hookHandlers: {
+    // Matches the dynamic-import module shape:
+    //   { default: HookHandlerCategoryFactory<"config"> }
+    // where HookHandlerCategoryFactory = () => Promise<Partial<ConfigHooks>>
+    config: async () => ({
+      default: async () => ({
+        extendUserConfig: (async (userConfig: any, next: any) => {
+          const resolved = await next(userConfig);
+          return {
+            ...resolved,
+            networks: {
+              // Preserve other user-defined networks
+              ...Object.fromEntries(
+                Object.entries(resolved.networks ?? {}).filter(
+                  ([k]: [string, unknown]) =>
+                    k !== "adi-testnet" && k !== "adi-mainnet"
+                )
+              ),
+              // ADI Testnet: plugin defaults merged with user overrides
+              "adi-testnet": {
+                type: "http",
+                url: ADI_TESTNET.rpcUrl,
+                chainId: ADI_TESTNET.chainId,
+                ...(resolved.networks?.["adi-testnet"] ?? {}),
+              },
+              // ADI Mainnet: plugin defaults merged with user overrides
+              "adi-mainnet": {
+                type: "http",
+                url: ADI_MAINNET.rpcUrl,
+                chainId: ADI_MAINNET.chainId,
+                ...(resolved.networks?.["adi-mainnet"] ?? {}),
+              },
+            },
+          };
+        }) as AnyFn,
+      }),
+    }),
+  },
+};
 
-  const mainnetBase: HttpNetworkUserConfig = {
-    type: "http",
-    chainType: "generic",
-    url: ADI_MAINNET.rpcUrl,
-    chainId: ADI_MAINNET.chainId,
-  };
-
-  // Merge: user config overrides our defaults, but only if they've defined the key
-  if (!config.networks["adi-testnet"]) {
-    config.networks["adi-testnet"] = {
-      ...testnetBase,
-      ...(userConfig.networks?.["adi-testnet"] ?? {}),
-    };
-  }
-
-  if (!config.networks["adi-mainnet"]) {
-    config.networks["adi-mainnet"] = {
-      ...mainnetBase,
-      ...(userConfig.networks?.["adi-mainnet"] ?? {}),
-    };
-  }
-});
+export default plugin;
 
 // Re-export constants so plugin consumers can import from one place
 export { ADI_TESTNET, ADI_MAINNET } from "@adi-devtools/sdk";

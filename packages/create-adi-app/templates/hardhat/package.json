@@ -11,6 +11,6 @@
   },
   "devDependencies": {
     "hardhat": "^3.0.0",
-    "hardhat-adi-network": "^0.1.1"
+    "hardhat-adi-network": "^0.1.2"
   }
 }

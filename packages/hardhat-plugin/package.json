@@ -1,7 +1,8 @@
 {
   "name": "hardhat-adi-network",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Hardhat plugin that auto-injects ADI testnet and mainnet network configs",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": ["dist"],

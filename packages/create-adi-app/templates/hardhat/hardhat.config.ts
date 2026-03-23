@@ -1,11 +1,12 @@
-import "hardhat-adi-network"; // auto-injects adi-testnet and adi-mainnet
+import { defineConfig } from "hardhat/config";
+import adiNetworkPlugin from "hardhat-adi-network";
 
-/** @type {import('hardhat/config').HardhatUserConfig} */
-const config = {
+export default defineConfig({
+  plugins: [adiNetworkPlugin],
   solidity: "0.8.24",
   networks: {
-    // hardhat-adi-network plugin already adds adi-testnet and adi-mainnet.
-    // You only need to set your private key here:
+    // hardhat-adi-network plugin injects the RPC URL and chainId.
+    // You only need to add accounts here.
     "adi-testnet": {
       accounts: process.env.TESTNET_PRIVATE_KEY ? [process.env.TESTNET_PRIVATE_KEY] : [],
     },
@@ -18,6 +19,5 @@ const config = {
   ignition: {
     requiredConfirmations: 1,
   },
-};
+});
 
-export default config;
