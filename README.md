@@ -177,9 +177,12 @@ Do not use the Hardhat 2 `require("hardhat-adi-network")` pattern.
 
 ### `forge build` fails: `forge-std/Script.sol` not found
 
-Foundry dependencies are not bundled in the scaffold — they are installed as git submodules. Run this once before `forge build`:
+Foundry dependencies are installed as git submodules. As of `create-adi-app@0.1.16`, a git repo is initialised automatically during scaffold so this should not happen. If you scaffolded with an older version, run:
 
 ```bash
+git init
+git add .
+git commit -m "init"
 forge install foundry-rs/forge-std
 forge build
 ```

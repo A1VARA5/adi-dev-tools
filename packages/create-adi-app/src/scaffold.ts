@@ -1,6 +1,7 @@
 import fs from "fs-extra";
 import path from "path";
 import pc from "picocolors";
+import { execSync } from "child_process";
 import type { ProjectAnswers } from "./prompts.js";
 
 interface ScaffoldOptions extends ProjectAnswers {
@@ -40,7 +41,19 @@ export async function scaffoldProject(opts: ScaffoldOptions): Promise<void> {
     await fs.copy(envExample, envFile);
   }
 
-  // 5. Print success message
+  // 5. For Foundry projects, initialise a git repo so `forge install` works
+  if (template === "foundry") {
+    try {
+      execSync("git init && git add . && git commit -m \"chore: initial scaffold\"", {
+        cwd: outputDir,
+        stdio: "ignore",
+      });
+    } catch {
+      // git not available — user will need to run git init manually before forge install
+    }
+  }
+
+  // 6. Print success message
   console.log(`  ${pc.green("✔")}  Created ${pc.cyan(outputDir)}\n`);
   console.log("  Next steps:\n");
   console.log(`    ${pc.cyan(`cd ${projectName}`)}`);
