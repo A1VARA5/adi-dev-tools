@@ -1,6 +1,6 @@
 {
   "name": "create-adi-app",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "CLI scaffold tool — create a fully configured ADI Chain dApp in one command",
   "main": "dist/index.js",
   "bin": {

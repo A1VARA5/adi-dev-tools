@@ -1,8 +1,9 @@
 import { defineConfig } from "hardhat/config";
 import adiNetworkPlugin from "hardhat-adi-network";
+import ignitionPlugin from "@nomicfoundation/hardhat-ignition";
 
 export default defineConfig({
-  plugins: [adiNetworkPlugin],
+  plugins: [adiNetworkPlugin, ignitionPlugin],
   solidity: "0.8.24",
   networks: {
     // hardhat-adi-network plugin injects the RPC URL and chainId.
