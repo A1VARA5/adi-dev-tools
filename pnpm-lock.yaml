@@ -17,8 +17,8 @@ importers:
   packages/create-adi-app:
     dependencies:
       '@adi-devtools/sdk':
-        specifier: workspace:*
-        version: link:../sdk
+        specifier: ^0.1.0
+        version: 0.1.0(viem@2.47.6(typescript@5.9.3)(zod@3.25.76))
       commander:
         specifier: ^12.0.0
         version: 12.1.0
@@ -54,8 +54,8 @@ importers:
   packages/hardhat-plugin:
     dependencies:
       '@adi-devtools/sdk':
-        specifier: workspace:*
-        version: link:../sdk
+        specifier: ^0.1.0
+        version: 0.1.0(viem@2.47.6(typescript@5.9.3)(zod@3.25.76))
     devDependencies:
       hardhat:
         specifier: ^3.0.0
@@ -84,6 +84,14 @@ importers:
         version: 5.9.3
 
 packages:
+
+  '@adi-devtools/sdk@0.1.0':
+    resolution: {integrity: sha512-ka90K0jMYTsNhUV71FckDqv+yyPUIrOp3KDbRVbkPtfvA/1x1qaM8fvQ7MPKrv/JTNheXCc6PWDH6MgYvXwMqg==}
+    peerDependencies:
+      viem: '>=2.0.0'
+    peerDependenciesMeta:
+      viem:
+        optional: true
 
   '@adraffy/ens-normalize@1.10.1':
     resolution: {integrity: sha512-96Z2IP3mYmF1Xg2cDm8f1gWGf/HUVedQ3FMifV4kG/PQ4yEP51xDtRAEfhVNt5f/uzpNkZHwWQuUcu6D6K+Ekw==}
@@ -837,6 +845,15 @@ packages:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
 snapshots:
+
+  '@adi-devtools/sdk@0.1.0(viem@2.47.6(typescript@5.9.3)(zod@3.25.76))':
+    dependencies:
+      ethers: 6.16.0
+    optionalDependencies:
+      viem: 2.47.6(typescript@5.9.3)(zod@3.25.76)
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
 
   '@adraffy/ens-normalize@1.10.1': {}
 

@@ -1,6 +1,6 @@
 {
   "name": "hardhat-adi-network",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Hardhat plugin that auto-injects ADI testnet and mainnet network configs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,7 +22,7 @@
     "url": "https://github.com/A1VARA5/adi-dev-tools/issues"
   },
   "dependencies": {
-    "@adi-devtools/sdk": "workspace:*"
+    "@adi-devtools/sdk": "^0.1.0"
   },
   "devDependencies": {
     "hardhat": "^3.0.0",
