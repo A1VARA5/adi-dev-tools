@@ -7,8 +7,8 @@ pragma solidity ^0.8.24;
  *         ADI Chain's low fees make NFT minting practical at scale.
  *
  * @dev Minimal ERC-721 — no external dependencies.
- *      For production use @adi-devtools/contracts ADINFT.sol which has full
- *      URI storage, operator approvals, and more admin controls.
+ *      For production use the ADINFT.sol template from the adi-devtools/contracts
+ *      package, which includes URI storage, operator approvals, and more admin controls.
  *
  * Deploy:
  *   forge script script/NFT.s.sol \
@@ -177,6 +177,7 @@ contract NFT {
         uint256 digits;
         while (temp != 0) { digits++; temp /= 10; }
         bytes memory buffer = new bytes(digits);
+        // forge-lint: disable-next-line(unsafe-typecast)
         while (value != 0) { digits--; buffer[digits] = bytes1(uint8(48 + value % 10)); value /= 10; }
         return string(buffer);
     }
