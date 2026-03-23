@@ -20,7 +20,7 @@ ADI Chain is fully EVM-compatible but had zero developer-facing tooling. This mo
 |---|---|---|
 | [`packages/sdk`](packages/sdk) | `npm i @adi-devtools/sdk` | Network constants, ethers.js/viem providers, MetaMask helpers |
 | [`packages/hardhat-plugin`](packages/hardhat-plugin) | `npm i hardhat-adi-network` | Auto-injects ADI testnet + mainnet into Hardhat configs |
-| [`packages/contracts`](packages/contracts) | `npm i @adi-devtools/contracts` | Solidity templates (Voting, ERC-20, ERC-721, Faucet, Paymaster) |
+| [`packages/contracts`](packages/contracts) | `npm i @adi-devtools/contracts` | Solidity templates (Voting, ERC-20, ERC-721, Faucet, Paymaster) + typed ABIs and addresses for all ADI system contracts |
 | [`packages/create-adi-app`](packages/create-adi-app) | `npx create-adi-app my-dapp` | One-command project scaffold (Hardhat or Foundry) |
 
 ---
@@ -143,6 +143,92 @@ Then `npx serve frontend` and open `http://localhost:3000`.
 - **`voting.html`** is included when you opt in to the Voting example. It lists all proposals with live vote counts and progress bars, lets wallets cast one vote each, and lets the contract owner close voting.
 
 Both files use ethers.js from CDN. No build step, no bundler, no framework.
+
+---
+
+## System contract ABIs
+
+`@adi-devtools/contracts` ships a `/system` subpath with typed TypeScript exports for every ADI Chain system contract.
+
+**Why this matters:** ADI Chain is built on ZKsync's stack and comes with a set of built-in contracts deployed at fixed addresses. Without this package you would need to manually look up each address in the source code and write your own ABIs. With it, you get everything pre-typed and importable in one line.
+
+```typescript
+import {
+  // Addresses
+  BASE_TOKEN_ADDRESS,        // ADI gas token
+  NONCE_HOLDER_ADDRESS,
+  CONTRACT_DEPLOYER_ADDRESS,
+  L1_MESSENGER_ADDRESS,
+  ENTRYPOINT_V07_ADDRESS,    // ERC-4337 v0.7
+  ENTRYPOINT_V08_ADDRESS,    // ERC-4337 v0.8
+
+  // ABIs
+  BASE_TOKEN_ABI,
+  NONCE_HOLDER_ABI,
+  SYSTEM_CONTEXT_ABI,
+  L1_MESSENGER_ABI,
+  CONTRACT_DEPLOYER_ABI,
+  PAYMASTER_ABI,
+  PAYMASTER_FLOW_ABI,
+} from "@adi-devtools/contracts/system";
+import { ethers } from "ethers";
+
+const provider = new ethers.JsonRpcProvider("https://rpc.ab.testnet.adifoundation.ai");
+```
+
+### What each export is for
+
+| Contract | Address constant | ABI constant | Use case |
+|---|---|---|---|
+| ADI gas token | `BASE_TOKEN_ADDRESS` | `BASE_TOKEN_ABI` | Withdraw ADI from L2 to L1 |
+| Nonce holder | `NONCE_HOLDER_ADDRESS` | `NONCE_HOLDER_ABI` | Custom smart account nonce management |
+| System context | `SYSTEM_CONTEXT_ADDRESS` | `SYSTEM_CONTEXT_ABI` | On-chain: read chainId, gas price, block number from inside a contract |
+| L1 messenger | `L1_MESSENGER_ADDRESS` | `L1_MESSENGER_ABI` | Send arbitrary messages from L2 → L1 |
+| Contract deployer | `CONTRACT_DEPLOYER_ADDRESS` | `CONTRACT_DEPLOYER_ABI` | Compute CREATE2 addresses, read account AA version |
+| Paymaster | `ENTRYPOINT_V07_ADDRESS` | `PAYMASTER_ABI` | Implement a custom ERC-4337 paymaster |
+| Paymaster flow | — | `PAYMASTER_FLOW_ABI` | Encode paymaster input for gasless transactions |
+
+### Gasless transactions (paymaster input encoding)
+
+The most common use case is encoding the `paymasterInput` field for ERC-4337 transactions:
+
+```typescript
+import { PAYMASTER_FLOW_ABI } from "@adi-devtools/contracts/system";
+import { ethers } from "ethers";
+
+const iface = new ethers.Interface(PAYMASTER_FLOW_ABI);
+
+// General paymaster — paymaster pays gas, no token approval needed
+const paymasterInput = iface.encodeFunctionData("general", ["0x"]);
+
+// Approval-based — user pays gas in an ERC-20 token
+const paymasterInput = iface.encodeFunctionData("approvalBased", [
+  tokenAddress,  // ERC-20 token address
+  minAllowance,  // BigInt — minimum token amount to approve
+  "0x",          // additional data
+]);
+```
+
+### L2 → L1 messaging
+
+```typescript
+import { L1_MESSENGER_ADDRESS, L1_MESSENGER_ABI } from "@adi-devtools/contracts/system";
+
+const messenger = new ethers.Contract(L1_MESSENGER_ADDRESS, L1_MESSENGER_ABI, signer);
+const tx = await messenger.sendToL1(ethers.toUtf8Bytes("hello from ADI L2"));
+await tx.wait();
+```
+
+### Compute a CREATE2 address before deploying
+
+```typescript
+import { CONTRACT_DEPLOYER_ADDRESS, CONTRACT_DEPLOYER_ABI } from "@adi-devtools/contracts/system";
+
+const deployer = new ethers.Contract(CONTRACT_DEPLOYER_ADDRESS, CONTRACT_DEPLOYER_ABI, provider);
+const address = await deployer.getNewAddressCreate2(sender, bytecodeHash, salt, constructorInput);
+```
+
+> **Note:** `SYSTEM_CONTEXT_ABI` functions (`chainId`, `gasPrice`, `getBlockNumber`, etc.) are bootloader-internal — they are designed for Solidity contracts calling them on-chain, not for external `eth_call`. For off-chain scripts use the provider directly: `provider.getNetwork()`, `provider.getFeeData()`, `provider.getBlockNumber()`.
 
 ---
 
