@@ -175,6 +175,29 @@ Do not use the Hardhat 2 `require("hardhat-adi-network")` pattern.
 
 ---
 
+### `forge`: `Failed to decode private key` on Windows
+
+Windows saves `.env` files with CRLF line endings. The `\r` gets appended to the key, making it invalid. Load the `.env` with explicit trimming:
+
+```powershell
+Get-Content .env | ForEach-Object {
+  if ($_ -match "^([^#][^=]*)=(.*)$") {
+    [System.Environment]::SetEnvironmentVariable($matches[1].Trim(), $matches[2].Trim().TrimEnd("`r"))
+  }
+}
+```
+
+Or pass the key directly to skip `.env` loading entirely:
+
+```powershell
+forge script script/Counter.s.sol `
+  --rpc-url https://rpc.ab.testnet.adifoundation.ai `
+  --broadcast `
+  --private-key 0xYourKeyHere
+```
+
+---
+
 ### `forge build` fails: `forge-std/Script.sol` not found
 
 Foundry dependencies are installed as git submodules. As of `create-adi-app@0.1.16`, a git repo is initialised automatically during scaffold so this should not happen. If you scaffolded with an older version, run:
