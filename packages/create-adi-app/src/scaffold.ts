@@ -52,6 +52,7 @@ export async function scaffoldProject(opts: ScaffoldOptions): Promise<void> {
     console.log(`    ${pc.cyan("npm run deploy")}`);
   } else {
     console.log(`    ${pc.cyan("# Set TESTNET_PRIVATE_KEY in .env")}`);
+    console.log(`    ${pc.cyan("forge install foundry-rs/forge-std")}`);
     console.log(`    ${pc.cyan("forge build")}`);
     console.log(
       `    ${pc.cyan(

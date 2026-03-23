@@ -175,6 +175,17 @@ Do not use the Hardhat 2 `require("hardhat-adi-network")` pattern.
 
 ---
 
+### `forge build` fails: `forge-std/Script.sol` not found
+
+Foundry dependencies are not bundled in the scaffold — they are installed as git submodules. Run this once before `forge build`:
+
+```bash
+forge install foundry-rs/forge-std
+forge build
+```
+
+---
+
 ### Zero balance / deployment reverts immediately
 
 Get free testnet ADI from the faucet before deploying:
