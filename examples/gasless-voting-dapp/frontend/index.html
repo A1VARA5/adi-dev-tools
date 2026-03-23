@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gasless Voting — ADI Chain</title>
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --surface: #151820;
+      --border: #1e2330;
+      --accent: #4f8ef7;
+      --accent2: #7c3aed;
+      --green: #22c55e;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --card: #1a1f2e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      padding: 0 16px 48px;
+    }
+
+    /* ── Header ────────────────────────────────────────────────── */
+    header {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 32px 0 24px;
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .logo-text { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+    .gasless-badge {
+      background: linear-gradient(135deg, #052e16, #14532d);
+      border: 1px solid #166534;
+      color: var(--green);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .subtitle {
+      margin-top: 6px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* ── Config banner ─────────────────────────────────────────── */
+    #config-banner {
+      max-width: 760px;
+      margin: 0 auto 20px;
+      background: #1a1500;
+      border: 1px solid #854d0e;
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 13px;
+      color: var(--yellow);
+      display: none;
+    }
+    #config-banner b { color: #fde047; }
+
+    /* ── Main layout ───────────────────────────────────────────── */
+    main { max-width: 760px; margin: 0 auto; }
+
+    /* ── Info row ──────────────────────────────────────────────── */
+    .info-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 560px) { .info-row { grid-template-columns: 1fr; } }
+    .info-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .info-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .info-value { font-size: 15px; font-weight: 600; }
+    .info-value.green { color: var(--green); }
+    .info-value.yellow { color: var(--yellow); }
+    .info-value.accent { color: var(--accent); }
+
+    /* ── Connect panel ─────────────────────────────────────────── */
+    #wallet-panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .wallet-status { display: flex; align-items: center; gap: 10px; }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--muted);
+      flex-shrink: 0;
+    }
+    .dot.green { background: var(--green); }
+    .dot.yellow { background: var(--yellow); }
+    .wallet-addr { font-family: monospace; font-size: 13px; color: var(--muted); }
+    .wallet-addr.connected { color: var(--text); }
+
+    /* ── Paymaster status ──────────────────────────────────────── */
+    #paymaster-panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .pm-info { display: flex; align-items: center; gap: 10px; }
+    .pm-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, #1e1b4b, #312e81);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+    }
+    .pm-title { font-weight: 600; font-size: 13px; }
+    .pm-sub { font-size: 12px; color: var(--muted); }
+    .pm-balance { text-align: right; }
+    .pm-balance-num { font-size: 16px; font-weight: 700; }
+    .pm-balance-num.healthy { color: var(--green); }
+    .pm-balance-num.low { color: var(--yellow); }
+    .pm-balance-num.empty { color: var(--red); }
+    .pm-balance-label { font-size: 11px; color: var(--muted); }
+
+    /* ── Poll card ─────────────────────────────────────────────── */
+    #poll-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .poll-header {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .poll-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .poll-meta { font-size: 12px; color: var(--muted); }
+    .poll-closed-badge {
+      display: inline-block;
+      background: #1c0a0a;
+      border: 1px solid #7f1d1d;
+      color: var(--red);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-left: 8px;
+    }
+
+    /* ── Proposals ─────────────────────────────────────────────── */
+    .proposals { padding: 16px 20px; }
+    .proposal-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      transition: border-color 0.2s;
+    }
+    .proposal-item:last-child { margin-bottom: 0; }
+    .proposal-item.winner {
+      border-color: #166534;
+      background: #051a0a;
+    }
+    .proposal-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      gap: 12px;
+    }
+    .proposal-desc { font-weight: 500; font-size: 15px; flex: 1; }
+    .proposal-count { font-size: 13px; color: var(--muted); white-space: nowrap; }
+    .progress-bar {
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+    .proposal-item.winner .progress-fill { background: linear-gradient(90deg, #16a34a, #22c55e); }
+    .winner-tag {
+      font-size: 11px;
+      color: var(--green);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    /* ── Buttons ───────────────────────────────────────────────── */
+    .btn {
+      border: none; cursor: pointer; border-radius: 8px;
+      font-size: 13px; font-weight: 600; padding: 9px 18px;
+      transition: opacity 0.15s, transform 0.1s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn:hover:not(:disabled) { opacity: 0.87; transform: translateY(-1px); }
+    .btn:active:not(:disabled) { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #3b82f6);
+      color: #fff;
+    }
+    .btn-green {
+      background: linear-gradient(135deg, #15803d, #16a34a);
+      color: #fff;
+    }
+    .btn-ghost {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-red {
+      background: linear-gradient(135deg, #991b1b, #b91c1c);
+      color: #fff;
+    }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+    .vote-btn-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .voted-chip {
+      font-size: 11px; color: var(--green); font-weight: 600;
+      background: #052e16; border: 1px solid #166534;
+      padding: 3px 10px; border-radius: 10px;
+    }
+
+    /* ── Owner panel ───────────────────────────────────────────── */
+    #owner-panel {
+      background: var(--card);
+      border: 1px solid #30234a;
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .owner-title {
+      font-size: 13px; font-weight: 600; color: #a78bfa;
+      margin-bottom: 14px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .owner-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* ── Status toast ──────────────────────────────────────────── */
+    #toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 12px 20px;
+      font-size: 13px; max-width: 480px; width: calc(100% - 32px);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+      display: none; z-index: 100;
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    #toast.show { display: flex; }
+    .toast-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .toast-body { flex: 1; }
+    .toast-title { font-weight: 600; margin-bottom: 2px; }
+    .toast-sub { font-size: 12px; color: var(--muted); word-break: break-all; }
+    .toast-close {
+      background: none; border: none; color: var(--muted);
+      cursor: pointer; font-size: 16px; padding: 0; flex-shrink: 0;
+    }
+
+    /* ── How it works ──────────────────────────────────────────── */
+    .how-it-works {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 20px;
+    }
+    .how-title {
+      font-size: 12px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.5px; color: var(--muted); margin-bottom: 14px;
+    }
+    .steps { display: flex; gap: 0; flex-wrap: wrap; }
+    .step {
+      flex: 1; min-width: 140px;
+      position: relative;
+      padding-right: 12px;
+    }
+    .step:not(:last-child)::after {
+      content: '→';
+      position: absolute; right: -4px; top: 0;
+      color: var(--muted); font-size: 14px;
+    }
+    .step-num {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--border); color: var(--muted);
+      font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 6px;
+    }
+    .step-label { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+    .step-sub { font-size: 11px; color: var(--muted); }
+
+    /* ── Loading overlay ───────────────────────────────────────── */
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #loading-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 50;
+      align-items: center; justify-content: center;
+      font-size: 14px; color: var(--text);
+      gap: 12px;
+    }
+    #loading-overlay.show { display: flex; }
+  </style>
+</head>
+<body>
+
+<!-- ── Loading overlay ──────────────────────────────────────────────────── -->
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <span id="loading-text">Processing…</span>
+</div>
+
+<!-- ── Toast ────────────────────────────────────────────────────────────── -->
+<div id="toast">
+  <span class="toast-icon" id="toast-icon">ℹ️</span>
+  <div class="toast-body">
+    <div class="toast-title" id="toast-title"></div>
+    <div class="toast-sub" id="toast-sub"></div>
+  </div>
+  <button class="toast-close" onclick="hideToast()">×</button>
+</div>
+
+<!-- ── Config banner ────────────────────────────────────────────────────── -->
+<div id="config-banner">
+  ⚠️ <b>Setup required:</b> Paste your deployed contract addresses into this file.<br/>
+  Search for <code>VOTING_ADDRESS</code> and <code>PAYMASTER_ADDRESS</code> (around line 320) and replace the zero addresses.
+</div>
+
+<!-- ── Header ───────────────────────────────────────────────────────────── -->
+<header>
+  <div class="header-top">
+    <div class="logo">
+      <div class="logo-icon">🗳️</div>
+      <span class="logo-text">Gasless Voting</span>
+    </div>
+    <span class="gasless-badge">⚡ 0 GAS FOR VOTERS</span>
+  </div>
+  <p class="subtitle">Powered by ADI Chain ZK rollup + native Account Abstraction. Voters pay nothing.</p>
+</header>
+
+<!-- ── Main ─────────────────────────────────────────────────────────────── -->
+<main>
+
+  <!-- Info row -->
+  <div class="info-row">
+    <div class="info-card">
+      <div class="info-label">Network</div>
+      <div class="info-value accent" id="network-name">ADI Testnet</div>
+    </div>
+    <div class="info-card">
+      <div class="info-label">Block</div>
+      <div class="info-value" id="block-number">—</div>
+    </div>
+    <div class="info-card">
+      <div class="info-label">Total Votes</div>
+      <div class="info-value green" id="total-votes">—</div>
+    </div>
+  </div>
+
+  <!-- Wallet panel -->
+  <div id="wallet-panel">
+    <div class="wallet-status">
+      <div class="dot" id="wallet-dot"></div>
+      <div>
+        <div style="font-weight:600;font-size:14px" id="wallet-label">Not connected</div>
+        <div class="wallet-addr" id="wallet-addr">Connect MetaMask to vote</div>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="connect-btn" onclick="connectWallet()">
+      Connect Wallet
+    </button>
+  </div>
+
+  <!-- Paymaster panel -->
+  <div id="paymaster-panel">
+    <div class="pm-info">
+      <div class="pm-icon">⛽</div>
+      <div>
+        <div class="pm-title">Gas Paymaster</div>
+        <div class="pm-sub">Sponsors gas for all votes — users pay nothing</div>
+      </div>
+    </div>
+    <div class="pm-balance">
+      <div class="pm-balance-num" id="pm-balance-num">—</div>
+      <div class="pm-balance-label">ADI available</div>
+    </div>
+  </div>
+
+  <!-- Poll card -->
+  <div id="poll-card">
+    <div class="poll-header">
+      <div class="poll-title" id="poll-title">Loading…</div>
+      <div class="poll-meta">
+        <span id="poll-status-text">Loading status…</span>
+      </div>
+    </div>
+    <div class="proposals" id="proposals-container">
+      <div style="color:var(--muted);font-size:13px;padding:20px 0;">Loading proposals…</div>
+    </div>
+  </div>
+
+  <!-- Owner panel -->
+  <div id="owner-panel">
+    <div class="owner-title">🔑 Owner Controls</div>
+    <div class="owner-actions">
+      <button class="btn btn-red btn-sm" id="close-voting-btn" onclick="closeVoting()">
+        Close Voting
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="withdrawPaymaster()">
+        Withdraw Paymaster Funds
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="refreshAll()">
+        ↻ Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <div class="how-it-works">
+    <div class="how-title">How gasless voting works on ADI Chain</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-label">User votes</div>
+        <div class="step-sub">Clicks "Vote Free" in the browser</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-label">Paymaster validates</div>
+        <div class="step-sub">GaslessPaymaster.sol verifies tx targets the voting contract</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-label">Bootloader charges paymaster</div>
+        <div class="step-sub">ADI Chain protocol deducts gas from paymaster balance</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-label">Vote recorded on-chain</div>
+        <div class="step-sub">ZK proof generated, verified on Ethereum L1</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── Script ────────────────────────────────────────────────────────────── -->
+<script type="module">
+// ── Imports ──────────────────────────────────────────────────────────────────
+import {
+  createPublicClient, createWalletClient, custom, http,
+  defineChain, formatEther, parseAbi, encodeFunctionData
+} from 'https://esm.sh/viem@2';
+import {
+  eip712WalletActions, getGeneralPaymasterInput, publicActionsL2
+} from 'https://esm.sh/viem@2/zksync';
+
+// ── Contract addresses ────────────────────────────────────────────────────────
+// ⚠️  REPLACE THESE after running: forge script script/Deploy.s.sol --broadcast
+const VOTING_ADDRESS   = '0x0000000000000000000000000000000000000000';
+const PAYMASTER_ADDRESS = '0x0000000000000000000000000000000000000000';
+
+// ── ABIs ─────────────────────────────────────────────────────────────────────
+const VOTING_ABI = parseAbi([
+  'function vote(uint256 proposalIndex)',
+  'function proposalCount() view returns (uint256)',
+  'function proposals(uint256) view returns (string description, uint256 voteCount)',
+  'function title() view returns (string)',
+  'function active() view returns (bool)',
+  'function hasVoted(address) view returns (bool)',
+  'function owner() view returns (address)',
+  'function closeVoting()',
+  'function winningProposal() view returns (uint256 winnerIndex, string description, uint256 voteCount)',
+]);
+
+const PAYMASTER_ABI = parseAbi([
+  'function getBalance() view returns (uint256)',
+  'function sponsoredContract() view returns (address)',
+  'function withdraw(address payable _to)',
+]);
+
+// ── ADI Chain definition ──────────────────────────────────────────────────────
+const adiTestnet = defineChain({
+  id: 99999,
+  name: 'ADI Testnet',
+  nativeCurrency: { name: 'ADI', symbol: 'ADI', decimals: 18 },
+  rpcUrls: { default: { http: ['https://rpc.ab.testnet.adifoundation.ai'] } },
+  blockExplorers: {
+    default: { name: 'ADI Explorer', url: 'https://explorer.ab.testnet.adifoundation.ai' }
+  },
+});
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let publicClient = createPublicClient({
+  chain: adiTestnet,
+  transport: http(),
+}).extend(publicActionsL2());
+
+let walletClient  = null;
+let userAddress   = null;
+let isOwner       = false;
+let votingActive  = true;
+let hasVoted      = false;
+let proposals     = [];
+
+// ── Config check ─────────────────────────────────────────────────────────────
+const ZERO = '0x0000000000000000000000000000000000000000';
+if (VOTING_ADDRESS === ZERO || PAYMASTER_ADDRESS === ZERO) {
+  document.getElementById('config-banner').style.display = 'block';
+}
+
+// ── Connect wallet ────────────────────────────────────────────────────────────
+window.connectWallet = async () => {
+  if (!window.ethereum) {
+    showToast('❌', 'MetaMask not found', 'Install MetaMask from metamask.io');
+    return;
+  }
+  try {
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+    await ensureADINetwork();
+
+    walletClient = createWalletClient({
+      chain: adiTestnet,
+      transport: custom(window.ethereum),
+    }).extend(eip712WalletActions());
+
+    const [addr] = await walletClient.getAddresses();
+    userAddress = addr;
+
+    document.getElementById('wallet-dot').classList.add('green');
+    document.getElementById('wallet-label').textContent = 'Connected';
+    document.getElementById('wallet-addr').textContent = addr.slice(0,6) + '…' + addr.slice(-4);
+    document.getElementById('wallet-addr').classList.add('connected');
+    document.getElementById('connect-btn').textContent = '✓ Connected';
+    document.getElementById('connect-btn').disabled = true;
+
+    await refreshAll();
+  } catch (err) {
+    showToast('❌', 'Connection failed', err.message);
+  }
+};
+
+async function ensureADINetwork() {
+  try {
+    await window.ethereum.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: '0x1869F' }], // 99999
+    });
+  } catch (switchErr) {
+    if (switchErr.code === 4902) {
+      await window.ethereum.request({
+        method: 'wallet_addEthereumChain',
+        params: [{
+          chainId: '0x1869F',
+          chainName: 'ADI Testnet',
+          rpcUrls: ['https://rpc.ab.testnet.adifoundation.ai'],
+          nativeCurrency: { name: 'ADI', symbol: 'ADI', decimals: 18 },
+          blockExplorerUrls: ['https://explorer.ab.testnet.adifoundation.ai'],
+        }],
+      });
+    }
+  }
+}
+
+// ── Refresh all state ─────────────────────────────────────────────────────────
+window.refreshAll = async () => {
+  await Promise.all([
+    loadPollData(),
+    loadPaymasterBalance(),
+    loadBlockNumber(),
+  ]);
+};
+
+async function loadBlockNumber() {
+  try {
+    const block = await publicClient.getBlockNumber();
+    document.getElementById('block-number').textContent = block.toLocaleString();
+  } catch {}
+}
+
+async function loadPaymasterBalance() {
+  if (PAYMASTER_ADDRESS === ZERO) return;
+  try {
+    const balance = await publicClient.readContract({
+      address: PAYMASTER_ADDRESS,
+      abi: PAYMASTER_ABI,
+      functionName: 'getBalance',
+    });
+    const adi = parseFloat(formatEther(balance));
+    const el = document.getElementById('pm-balance-num');
+    el.textContent = adi.toFixed(4) + ' ADI';
+    el.className = 'pm-balance-num ' + (adi > 0.01 ? 'healthy' : adi > 0 ? 'low' : 'empty');
+  } catch {}
+}
+
+async function loadPollData() {
+  if (VOTING_ADDRESS === ZERO) {
+    document.getElementById('poll-title').textContent = 'Deploy contracts to start';
+    document.getElementById('proposals-container').innerHTML =
+      '<p style="color:var(--muted);font-size:13px;padding:8px 0">No contract deployed yet.</p>';
+    return;
+  }
+
+  try {
+    // Fetch title, active, proposal count, owner in parallel
+    const [title, active, count, owner] = await Promise.all([
+      publicClient.readContract({ address: VOTING_ADDRESS, abi: VOTING_ABI, functionName: 'title' }),
+      publicClient.readContract({ address: VOTING_ADDRESS, abi: VOTING_ABI, functionName: 'active' }),
+      publicClient.readContract({ address: VOTING_ADDRESS, abi: VOTING_ABI, functionName: 'proposalCount' }),
+      publicClient.readContract({ address: VOTING_ADDRESS, abi: VOTING_ABI, functionName: 'owner' }),
+    ]);
+
+    votingActive = active;
+    isOwner = userAddress && owner.toLowerCase() === userAddress.toLowerCase();
+
+    document.getElementById('poll-title').textContent = title;
+    document.getElementById('poll-status-text').innerHTML = active
+      ? '🟢 <b style="color:var(--green)">Voting open</b>'
+      : '🔴 <b style="color:var(--red)">Voting closed</b>';
+
+    if (active) {
+      document.getElementById('poll-title').querySelector?.('.poll-closed-badge')?.remove();
+    } else {
+      const badge = document.createElement('span');
+      badge.className = 'poll-closed-badge';
+      badge.textContent = 'Closed';
+      document.getElementById('poll-title').appendChild(badge);
+    }
+
+    // Load voter status
+    if (userAddress) {
+      hasVoted = await publicClient.readContract({
+        address: VOTING_ADDRESS,
+        abi: VOTING_ABI,
+        functionName: 'hasVoted',
+        args: [userAddress],
+      });
+    }
+
+    // Load proposals
+    const propPromises = [];
+    for (let i = 0; i < Number(count); i++) {
+      propPromises.push(
+        publicClient.readContract({
+          address: VOTING_ADDRESS, abi: VOTING_ABI,
+          functionName: 'proposals', args: [BigInt(i)],
+        })
+      );
+    }
+    proposals = await Promise.all(propPromises);
+
+    // Find winning proposal
+    let winnerIdx = 0;
+    let maxVotes = 0n;
+    proposals.forEach(([, votes], idx) => {
+      if (votes > maxVotes) { maxVotes = votes; winnerIdx = idx; }
+    });
+
+    const totalVotes = proposals.reduce((sum, [, v]) => sum + v, 0n);
+    document.getElementById('total-votes').textContent = totalVotes.toString();
+
+    renderProposals(proposals, winnerIdx, totalVotes, active);
+
+    // Show owner panel
+    if (isOwner) {
+      document.getElementById('owner-panel').style.display = 'block';
+      document.getElementById('close-voting-btn').disabled = !active;
+    }
+
+  } catch (err) {
+    console.error('loadPollData error:', err);
+    document.getElementById('poll-title').textContent = 'Error loading poll';
+  }
+}
+
+function renderProposals(props, winnerIdx, totalVotes, active) {
+  const container = document.getElementById('proposals-container');
+  container.innerHTML = '';
+
+  props.forEach(([description, voteCount], idx) => {
+    const pct = totalVotes > 0n ? Number((voteCount * 100n) / totalVotes) : 0;
+    const isWinner = !active && idx === winnerIdx;
+
+    const div = document.createElement('div');
+    div.className = 'proposal-item' + (isWinner ? ' winner' : '');
+
+    const canVote = active && !hasVoted && userAddress && walletClient;
+
+    div.innerHTML = `
+      ${isWinner ? '<div class="winner-tag">🏆 Winner</div>' : ''}
+      <div class="proposal-top">
+        <div class="proposal-desc">${escHtml(description)}</div>
+        <div class="proposal-count">${voteCount} vote${voteCount !== 1n ? 's' : ''} · ${pct}%</div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-${idx}" style="width:${pct}%"></div>
+      </div>
+      <div class="vote-btn-row">
+        ${canVote
+          ? `<button class="btn btn-green btn-sm" onclick="castVote(${idx})" id="vote-btn-${idx}">
+               ⚡ Vote Free
+             </button>`
+          : ''
+        }
+        ${hasVoted
+          ? `<span class="voted-chip">✓ You voted</span>`
+          : ''
+        }
+        ${!active && !isWinner ? '<span style="font-size:12px;color:var(--muted)">Voting closed</span>' : ''}
+        ${active && !userAddress ? '<span style="font-size:12px;color:var(--muted)">Connect wallet to vote</span>' : ''}
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+// ── Cast gasless vote ─────────────────────────────────────────────────────────
+window.castVote = async (proposalIndex) => {
+  if (!walletClient || !userAddress) {
+    showToast('⚠️', 'Not connected', 'Connect your wallet first');
+    return;
+  }
+  if (VOTING_ADDRESS === ZERO || PAYMASTER_ADDRESS === ZERO) {
+    showToast('⚠️', 'Contracts not configured', 'Set VOTING_ADDRESS and PAYMASTER_ADDRESS in this file');
+    return;
+  }
+
+  const btn = document.getElementById(`vote-btn-${proposalIndex}`);
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Signing…'; }
+
+  showLoading('Sending gasless transaction…');
+
+  try {
+    // Build the general paymaster input (encodes IPaymasterFlow.general("0x"))
+    const paymasterInput = getGeneralPaymasterInput({ innerInput: '0x' });
+
+    const hash = await walletClient.writeContract({
+      address: VOTING_ADDRESS,
+      abi: VOTING_ABI,
+      functionName: 'vote',
+      args: [BigInt(proposalIndex)],
+      account: userAddress,
+      paymaster: PAYMASTER_ADDRESS,
+      paymasterInput,
+    });
+
+    showLoading('Waiting for confirmation…');
+
+    const receipt = await publicClient.waitForTransactionReceipt({ hash });
+
+    hideLoading();
+    hasVoted = true;
+    showToast('✅', 'Vote cast — 0 gas paid!', `Tx: ${hash.slice(0,10)}…${hash.slice(-8)}`);
+
+    await refreshAll();
+
+  } catch (err) {
+    hideLoading();
+    if (btn) { btn.disabled = false; btn.innerHTML = '⚡ Vote Free'; }
+
+    const msg = err.shortMessage || err.message || String(err);
+    if (msg.includes('AlreadyVoted')) {
+      showToast('⚠️', 'Already voted', 'Each wallet can only vote once');
+    } else if (msg.includes('InsufficientPaymasterBalance')) {
+      showToast('❌', 'Paymaster out of funds', 'The paymaster needs more ADI. Owner: fund via wallet_sendTransaction.');
+    } else if (msg.includes('VotingNotActive')) {
+      showToast('⚠️', 'Voting is closed', 'This poll has ended');
+    } else {
+      showToast('❌', 'Transaction failed', msg.slice(0, 140));
+    }
+  }
+};
+
+// ── Owner: close voting ───────────────────────────────────────────────────────
+window.closeVoting = async () => {
+  if (!walletClient) return;
+  showLoading('Closing voting…');
+  try {
+    const hash = await walletClient.writeContract({
+      address: VOTING_ADDRESS,
+      abi: VOTING_ABI,
+      functionName: 'closeVoting',
+      account: userAddress,
+    });
+    await publicClient.waitForTransactionReceipt({ hash });
+    hideLoading();
+    showToast('✅', 'Voting closed', `Tx: ${hash.slice(0,10)}…`);
+    await refreshAll();
+  } catch (err) {
+    hideLoading();
+    showToast('❌', 'Failed', err.shortMessage || err.message);
+  }
+};
+
+// ── Owner: withdraw paymaster ─────────────────────────────────────────────────
+window.withdrawPaymaster = async () => {
+  if (!walletClient) return;
+  showLoading('Withdrawing paymaster funds…');
+  try {
+    const hash = await walletClient.writeContract({
+      address: PAYMASTER_ADDRESS,
+      abi: PAYMASTER_ABI,
+      functionName: 'withdraw',
+      args: [userAddress],
+      account: userAddress,
+    });
+    await publicClient.waitForTransactionReceipt({ hash });
+    hideLoading();
+    showToast('✅', 'Withdrawn', `Paymaster funds returned to your wallet`);
+    await loadPaymasterBalance();
+  } catch (err) {
+    hideLoading();
+    showToast('❌', 'Failed', err.shortMessage || err.message);
+  }
+};
+
+// ── Toast helpers ─────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(icon, title, sub) {
+  clearTimeout(toastTimer);
+  document.getElementById('toast-icon').textContent = icon;
+  document.getElementById('toast-title').textContent = title;
+  document.getElementById('toast-sub').textContent = sub;
+  document.getElementById('toast').classList.add('show');
+  toastTimer = setTimeout(hideToast, 8000);
+}
+window.hideToast = () => document.getElementById('toast').classList.remove('show');
+
+// ── Loading helpers ───────────────────────────────────────────────────────────
+function showLoading(msg) {
+  document.getElementById('loading-text').textContent = msg;
+  document.getElementById('loading-overlay').classList.add('show');
+}
+function hideLoading() {
+  document.getElementById('loading-overlay').classList.remove('show');
+}
+
+// ── Escape HTML ───────────────────────────────────────────────────────────────
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Auto-load on page open ────────────────────────────────────────────────────
+(async () => {
+  await refreshAll();
+  // Reconnect if already authorized
+  if (window.ethereum) {
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+      if (accounts.length > 0) connectWallet();
+    } catch {}
+  }
+  setInterval(loadBlockNumber, 10000);
+})();
+</script>
+</body>
+</html>

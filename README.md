@@ -31,8 +31,9 @@ ADI Chain is fully EVM-compatible but had zero developer-facing tooling. This mo
 |---|---|---|
 | [`examples/counter-dapp`](examples/counter-dapp) | Hardhat + HTML | Simple on-chain counter — increment, set value, read state |
 | [`examples/voting-dapp`](examples/voting-dapp) | Foundry + HTML | Production-ready on-chain voting dApp with proposals, vote counts and progress bars |
+| [`examples/gasless-voting-dapp`](examples/gasless-voting-dapp) | Foundry + HTML + viem/zksync | Gasless voting — users pay zero gas, paymaster covers all fees via ZKsync native AA |
 
-Both examples include a ready-to-use single-file HTML frontend that connects to MetaMask — no build step, no bundler.
+All examples include a ready-to-use single-file HTML frontend that connects to MetaMask — no build step, no bundler.
 
 ---
 
@@ -314,8 +315,9 @@ adi-dev-tools/
 │           ├── hardhat/   ← copied into new Hardhat projects
 │           └── foundry/   ← copied into new Foundry projects
 ├── examples/
-│   ├── counter-dapp/      ← Hardhat + Counter + HTML frontend
-│   └── voting-dapp/       ← Foundry + Voting + HTML frontend
+│   ├── counter-dapp/          ← Hardhat + Counter + HTML frontend
+│   ├── voting-dapp/           ← Foundry + Voting + HTML frontend
+│   └── gasless-voting-dapp/   ← Foundry + ZKsync native AA paymaster + HTML frontend
 ├── docker/                ← Local ADI node (Linux only)
 ├── pnpm-workspace.yaml
 └── package.json
