@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ADI Chain DAO</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1e2130;
+      --surface2: #252838;
+      --border: #2d3248;
+      --accent: #6366f1;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --subtle: #94a3b8;
+      --green: #4ade80;
+      --green-bg: #052e16;
+      --green-border: #166534;
+      --red: #f87171;
+      --red-bg: #450a0a;
+      --red-border: #7f1d1d;
+      --yellow: #fbbf24;
+      --yellow-bg: #1c1400;
+      --yellow-border: #78350f;
+      --purple: #a78bfa;
+      --purple-bg: #1e1040;
+      --purple-border: #5b21b6;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg); color: var(--text); min-height: 100vh; padding: 2rem 1rem;
+    }
+
+    .container { max-width: 700px; margin: 0 auto; }
+
+    .header { text-align: center; margin-bottom: 2rem; }
+    .adi-logo { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
+    .adi-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; }
+    h1 { font-size: 1.75rem; font-weight: 700; }
+    .subtitle { color: var(--subtle); margin-top: 0.4rem; font-size: 0.9rem; }
+
+    /* wallet */
+    .wallet-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; gap: 1rem; flex-wrap: wrap; }
+    .wallet-info { min-width: 0; }
+    .wallet-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 0.2rem; }
+    .wallet-addr { font-family: monospace; font-size: 0.82rem; color: var(--subtle); }
+    .chain-badge { background: var(--accent); color: white; font-size: 0.68rem; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+    .member-badge { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); font-size: 0.68rem; padding: 3px 10px; border-radius: 999px; }
+
+    /* buttons */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.55rem 1.1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: none; transition: opacity 0.15s, transform 0.1s; white-space: nowrap; }
+    .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+    .btn-red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+    .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.78rem; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* stats */
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.25rem; }
+    .stat-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; text-align: center; }
+    .stat-value { font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+    .stat-label { font-size: 0.7rem; color: var(--muted); margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* card */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 1.25rem; }
+    .card-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+    .card-title { font-size: 1rem; font-weight: 700; }
+    .card-body { padding: 1.25rem 1.5rem; }
+
+    /* propose form */
+    .form-row { margin-bottom: 1rem; }
+    .form-label { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.4rem; display: block; text-transform: uppercase; letter-spacing: 0.05em; }
+    .form-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.85rem; color: var(--text); font-size: 0.9rem; outline: none; transition: border-color 0.15s; }
+    .form-input:focus { border-color: var(--accent); }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-hint { font-size: 0.72rem; color: var(--muted); margin-top: 0.3rem; }
+
+    /* proposals */
+    .proposal-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; margin-bottom: 0.75rem; }
+    .proposal-item:last-child { margin-bottom: 0; }
+    .proposal-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+    .proposal-desc { font-size: 0.92rem; font-weight: 600; line-height: 1.4; }
+    .proposal-meta { font-size: 0.72rem; color: var(--muted); margin-top: 0.25rem; }
+
+    /* state pills */
+    .pill { font-size: 0.68rem; font-weight: 600; padding: 3px 9px; border-radius: 999px; flex-shrink: 0; }
+    .pill-active   { background: var(--yellow-bg);  color: var(--yellow);  border: 1px solid var(--yellow-border); }
+    .pill-passed   { background: var(--green-bg);   color: var(--green);   border: 1px solid var(--green-border); }
+    .pill-rejected { background: var(--red-bg);     color: var(--red);     border: 1px solid var(--red-border); }
+    .pill-executed { background: var(--purple-bg);  color: var(--purple);  border: 1px solid var(--purple-border); }
+
+    /* vote bars */
+    .vote-bars { margin: 0.5rem 0; }
+    .vote-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.3rem; font-size: 0.78rem; }
+    .vote-label { color: var(--muted); width: 50px; flex-shrink: 0; }
+    .vote-bar-track { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .vote-bar-fill-for  { height: 100%; background: var(--green); border-radius: 3px; transition: width 0.4s; }
+    .vote-bar-fill-against { height: 100%; background: var(--red); border-radius: 3px; transition: width 0.4s; }
+    .vote-count-label { color: var(--subtle); width: 32px; text-align: right; flex-shrink: 0; }
+
+    /* actions */
+    .proposal-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border); }
+
+    /* treasury */
+    .treasury-value { font-size: 1.8rem; font-weight: 700; color: var(--green); }
+
+    .loading { text-align: center; color: var(--muted); padding: 2rem; font-size: 0.9rem; }
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 0.5rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; z-index: 999; }
+    .toast { padding: 0.75rem 1.1rem; border-radius: 10px; font-size: 0.85rem; font-weight: 500; max-width: 320px; word-break: break-word; animation: slideIn 0.2s ease; }
+    .toast-ok  { background: var(--green-bg);  color: var(--green); border: 1px solid var(--green-border); }
+    .toast-err { background: var(--red-bg);    color: var(--red);   border: 1px solid var(--red-border); }
+    .toast-info { background: var(--surface2); color: var(--subtle); border: 1px solid var(--border); }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="adi-logo"><span class="adi-dot"></span> ADI Chain Testnet</div>
+    <h1 id="daoName">Community DAO</h1>
+    <p class="subtitle">On-chain governance with treasury — proposals, voting, execution</p>
+  </div>
+
+  <!-- Wallet -->
+  <div class="wallet-card">
+    <div class="wallet-info">
+      <div class="wallet-label">Wallet</div>
+      <div class="wallet-addr" id="walletAddr">Not connected</div>
+    </div>
+    <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+      <span class="chain-badge">ADI Testnet</span>
+      <span class="member-badge" id="memberBadge" style="display:none;">Member ✓</span>
+      <button class="btn btn-outline btn-sm" id="joinBtn" onclick="joinDAO()" style="display:none;">Join DAO</button>
+      <button class="btn btn-primary" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-box">
+      <div class="stat-value" id="statProposals">—</div>
+      <div class="stat-label">Proposals</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value" id="statMembers">—</div>
+      <div class="stat-label">Members</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value" id="statTreasury">—</div>
+      <div class="stat-label">Treasury (ADI)</div>
+    </div>
+  </div>
+
+  <!-- Create proposal -->
+  <div class="card" id="proposeCard" style="display:none;">
+    <div class="card-header">
+      <span class="card-title">Create Proposal</span>
+    </div>
+    <div class="card-body">
+      <div class="form-row">
+        <label class="form-label">Description</label>
+        <input class="form-input" id="propDesc" placeholder="What should the DAO do?" />
+      </div>
+      <div class="form-row-2">
+        <div class="form-row" style="margin-bottom:0;">
+          <label class="form-label">Recipient (optional)</label>
+          <input class="form-input" id="propRecipient" placeholder="0x... or leave empty" />
+          <div class="form-hint">Address to receive treasury funds</div>
+        </div>
+        <div class="form-row" style="margin-bottom:0;">
+          <label class="form-label">Amount (ADI)</label>
+          <input class="form-input" id="propValue" placeholder="0" type="number" min="0" step="0.001" />
+          <div class="form-hint">Treasury release (0 = governance only)</div>
+        </div>
+      </div>
+      <div style="margin-top:1.1rem;">
+        <button class="btn btn-primary" onclick="createProposal()">Submit Proposal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Proposals list -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Proposals</span>
+      <button class="btn btn-outline btn-sm" onclick="loadProposals()">Refresh</button>
+    </div>
+    <div class="card-body" style="padding:1rem;">
+      <div id="proposalsList" class="loading"><span class="spinner"></span>Loading...</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script type="module">
+import { BrowserProvider, Contract, JsonRpcProvider, formatEther, parseEther, ZeroAddress }
+  from "https://esm.sh/ethers@6?bundle";
+
+// ─── Config ───────────────────────────────────────────────────────────────────
+// TODO: Replace with your deployed DAO address after running the deploy script
+const CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000";
+
+const ADI_TESTNET = {
+  chainId: "0x1869F",
+  chainName: "ADI Testnet",
+  rpcUrls: ["https://rpc.ab.testnet.adifoundation.ai"],
+  nativeCurrency: { name: "ADI", symbol: "ADI", decimals: 18 },
+  blockExplorerUrls: ["https://explorer.ab.testnet.adifoundation.ai"],
+};
+
+const CONTRACT_ABI = [
+  "function name() view returns (string)",
+  "function memberCount() view returns (uint256)",
+  "function proposalCount() view returns (uint256)",
+  "function treasury() view returns (uint256)",
+  "function members(address) view returns (bool)",
+  "function voted(uint256,address) view returns (bool)",
+  "function votingDuration() view returns (uint256)",
+  "function quorumPercent() view returns (uint256)",
+  "function getProposal(uint256) view returns (uint256,address,string,address,uint256,uint256,uint256,uint256,uint8)",
+  "function join()",
+  "function propose(string,address,uint256) returns (uint256)",
+  "function vote(uint256,bool)",
+  "function finalize(uint256)",
+  "function execute(uint256)",
+];
+
+// ─── State ────────────────────────────────────────────────────────────────────
+let provider, signer, contract;
+const readProvider = new JsonRpcProvider(ADI_TESTNET.rpcUrls[0]);
+const readContract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, readProvider);
+let currentAddress = null;
+let isMember = false;
+
+const STATE_LABELS = ["Active", "Passed", "Rejected", "Executed"];
+const STATE_CLASSES = ["pill-active", "pill-passed", "pill-rejected", "pill-executed"];
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+function toast(msg, type = "info") {
+  const el = document.createElement("div");
+  el.className = "toast toast-" + type;
+  el.textContent = msg;
+  document.getElementById("toastContainer").appendChild(el);
+  setTimeout(() => el.remove(), 4500);
+}
+
+// ─── Wallet ───────────────────────────────────────────────────────────────────
+async function connectWallet() {
+  if (!window.ethereum) return toast("MetaMask not detected.", "err");
+  try {
+    try {
+      await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: ADI_TESTNET.chainId }] });
+    } catch (e) {
+      if (e.code === 4902) await window.ethereum.request({ method: "wallet_addEthereumChain", params: [ADI_TESTNET] });
+      else throw e;
+    }
+    provider = new BrowserProvider(window.ethereum);
+    signer   = await provider.getSigner();
+    contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+    currentAddress = await signer.getAddress();
+
+    document.getElementById("walletAddr").textContent = currentAddress;
+    document.getElementById("connectBtn").textContent = "Connected";
+    document.getElementById("connectBtn").disabled = true;
+
+    await refreshAll();
+  } catch (err) {
+    toast("Connection failed: " + err.message, "err");
+  }
+}
+window.connectWallet = connectWallet;
+
+// ─── DAO info ─────────────────────────────────────────────────────────────────
+async function loadDAOInfo() {
+  try {
+    const rc = contract || readContract;
+    const [name, members, proposals, treasury] = await Promise.all([
+      rc.name(),
+      rc.memberCount(),
+      rc.proposalCount(),
+      rc.treasury(),
+    ]);
+
+    document.getElementById("daoName").textContent = name;
+    document.getElementById("statMembers").textContent   = Number(members);
+    document.getElementById("statProposals").textContent = Number(proposals);
+    document.getElementById("statTreasury").textContent  = parseFloat(formatEther(treasury)).toFixed(3);
+
+    if (currentAddress) {
+      isMember = await rc.members(currentAddress);
+      document.getElementById("memberBadge").style.display = isMember ? "inline-flex" : "none";
+      document.getElementById("joinBtn").style.display     = isMember ? "none" : "inline-flex";
+      document.getElementById("proposeCard").style.display = isMember ? "block" : "none";
+    }
+  } catch (err) {
+    console.error("loadDAOInfo:", err.message);
+  }
+}
+
+// ─── Proposals ────────────────────────────────────────────────────────────────
+async function loadProposals() {
+  const container = document.getElementById("proposalsList");
+  container.innerHTML = '<div class="loading"><span class="spinner"></span>Loading proposals...</div>';
+
+  try {
+    const rc = contract || readContract;
+    const total = Number(await rc.proposalCount());
+
+    if (total === 0) {
+      container.innerHTML = '<div class="loading" style="color:var(--muted)">No proposals yet. Be the first to create one!</div>';
+      return;
+    }
+
+    // Fetch all proposals in parallel
+    const fetches = [];
+    for (let i = 1; i <= total; i++) {
+      fetches.push(rc.getProposal(i).then(r => ({
+        id:          Number(r[0]),
+        proposer:    r[1],
+        description: r[2],
+        recipient:   r[3],
+        value:       r[4],
+        votesFor:    Number(r[5]),
+        votesAgainst: Number(r[6]),
+        deadline:    Number(r[7]),
+        state:       Number(r[8]),
+      })));
+    }
+
+    const proposals = (await Promise.all(fetches)).reverse(); // newest first
+
+    // Check which ones the current user has voted on
+    let userVoted = {};
+    if (currentAddress) {
+      const votedChecks = proposals.map(p =>
+        rc.voted(p.id, currentAddress).then(v => ({ id: p.id, voted: v }))
+      );
+      const results = await Promise.all(votedChecks);
+      results.forEach(r => { userVoted[r.id] = r.voted; });
+    }
+
+    container.innerHTML = "";
+    for (const p of proposals) {
+      const total = p.votesFor + p.votesAgainst;
+      const forPct     = total > 0 ? Math.round((p.votesFor     / total) * 100) : 0;
+      const againstPct = total > 0 ? Math.round((p.votesAgainst / total) * 100) : 0;
+
+      const now = Math.floor(Date.now() / 1000);
+      const timeLeft = p.deadline - now;
+      const timeStr = timeLeft > 0
+        ? (timeLeft < 3600
+            ? Math.ceil(timeLeft / 60) + "m left"
+            : Math.ceil(timeLeft / 3600) + "h left")
+        : "Voting ended";
+
+      const hasVoted = userVoted[p.id] || false;
+      const canVote  = isMember && p.state === 0 && timeLeft > 0 && !hasVoted && currentAddress;
+      const canFinalize = p.state === 0 && timeLeft <= 0;
+      const canExecute  = p.state === 1;
+
+      const valueStr = p.value > 0n ? formatEther(p.value) + " ADI to " + shortAddr(p.recipient) : "";
+
+      const el = document.createElement("div");
+      el.className = "proposal-item";
+      el.innerHTML = `
+        <div class="proposal-top">
+          <div>
+            <div class="proposal-desc">#${p.id} — ${escapeHtml(p.description)}</div>
+            <div class="proposal-meta">
+              By ${shortAddr(p.proposer)}
+              ${valueStr ? ` · 💰 ${valueStr}` : ""}
+              · ${timeStr}
+              ${hasVoted ? " · <span style='color:var(--accent)'>You voted</span>" : ""}
+            </div>
+          </div>
+          <span class="pill ${STATE_CLASSES[p.state]}">${STATE_LABELS[p.state]}</span>
+        </div>
+
+        <div class="vote-bars">
+          <div class="vote-row">
+            <span class="vote-label" style="color:var(--green)">For</span>
+            <div class="vote-bar-track"><div class="vote-bar-fill-for" style="width:${forPct}%"></div></div>
+            <span class="vote-count-label">${p.votesFor}</span>
+          </div>
+          <div class="vote-row">
+            <span class="vote-label" style="color:var(--red)">Against</span>
+            <div class="vote-bar-track"><div class="vote-bar-fill-against" style="width:${againstPct}%"></div></div>
+            <span class="vote-count-label">${p.votesAgainst}</span>
+          </div>
+        </div>
+
+        <div class="proposal-actions">
+          ${canVote ? `
+            <button class="btn btn-green btn-sm" onclick="castVote(${p.id}, true)">Vote For</button>
+            <button class="btn btn-red btn-sm"   onclick="castVote(${p.id}, false)">Vote Against</button>
+          ` : ""}
+          ${canFinalize ? `<button class="btn btn-outline btn-sm" onclick="finalizeProposal(${p.id})">Finalize</button>` : ""}
+          ${canExecute  ? `<button class="btn btn-primary btn-sm" onclick="executeProposal(${p.id})">Execute</button>` : ""}
+        </div>
+      `;
+      container.appendChild(el);
+    }
+  } catch (err) {
+    container.innerHTML = '<div class="loading">Failed to load: ' + escapeHtml(err.message) + '</div>';
+  }
+}
+window.loadProposals = loadProposals;
+
+// ─── Actions ──────────────────────────────────────────────────────────────────
+async function joinDAO() {
+  if (!contract) return toast("Connect wallet first.", "err");
+  try {
+    toast("Joining the DAO...", "info");
+    const tx = await contract.join();
+    await tx.wait();
+    toast("You are now a member! ✔", "ok");
+    await refreshAll();
+  } catch (err) {
+    toast("Join failed: " + (err?.reason || err?.message), "err");
+  }
+}
+window.joinDAO = joinDAO;
+
+async function createProposal() {
+  if (!contract) return toast("Connect wallet first.", "err");
+  const desc      = document.getElementById("propDesc").value.trim();
+  const recipient = document.getElementById("propRecipient").value.trim() || ZeroAddress;
+  const valueADI  = parseFloat(document.getElementById("propValue").value || "0");
+
+  if (!desc) return toast("Description is required.", "err");
+
+  try {
+    const value = valueADI > 0 ? parseEther(valueADI.toString()) : 0n;
+    toast("Submitting proposal...", "info");
+    const tx = await contract.propose(desc, recipient, value);
+    await tx.wait();
+    toast("Proposal created! ✔", "ok");
+    document.getElementById("propDesc").value = "";
+    document.getElementById("propRecipient").value = "";
+    document.getElementById("propValue").value = "";
+    await refreshAll();
+  } catch (err) {
+    toast("Proposal failed: " + (err?.reason || err?.message), "err");
+  }
+}
+window.createProposal = createProposal;
+
+async function castVote(proposalId, support) {
+  if (!contract) return toast("Connect wallet first.", "err");
+  try {
+    toast(`Sending ${support ? "FOR" : "AGAINST"} vote...`, "info");
+    const tx = await contract.vote(proposalId, support);
+    await tx.wait();
+    toast("Vote cast! ✔", "ok");
+    await loadProposals();
+  } catch (err) {
+    toast("Vote failed: " + (err?.reason || err?.message), "err");
+  }
+}
+window.castVote = castVote;
+
+async function finalizeProposal(proposalId) {
+  if (!contract) return toast("Connect wallet first.", "err");
+  try {
+    toast("Finalizing proposal...", "info");
+    const tx = await contract.finalize(proposalId);
+    await tx.wait();
+    toast("Proposal finalized! ✔", "ok");
+    await refreshAll();
+  } catch (err) {
+    toast("Finalize failed: " + (err?.reason || err?.message), "err");
+  }
+}
+window.finalizeProposal = finalizeProposal;
+
+async function executeProposal(proposalId) {
+  if (!contract) return toast("Connect wallet first.", "err");
+  if (!confirm("Execute this proposal and release treasury funds? This cannot be undone.")) return;
+  try {
+    toast("Executing proposal...", "info");
+    const tx = await contract.execute(proposalId);
+    await tx.wait();
+    toast("Proposal executed! Treasury funds released. ✔", "ok");
+    await refreshAll();
+  } catch (err) {
+    toast("Execute failed: " + (err?.reason || err?.message), "err");
+  }
+}
+window.executeProposal = executeProposal;
+
+// ─── Utils ────────────────────────────────────────────────────────────────────
+async function refreshAll() {
+  await Promise.all([loadDAOInfo(), loadProposals()]);
+}
+
+function shortAddr(addr) {
+  if (!addr || addr === ZeroAddress) return "—";
+  return addr.slice(0, 6) + "..." + addr.slice(-4);
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+window.addEventListener("load", async () => {
+  try { await refreshAll(); } catch (_) {}
+  if (window.ethereum?.selectedAddress) connectWallet();
+});
+
+if (window.ethereum) {
+  window.ethereum.on("accountsChanged", () => location.reload());
+  window.ethereum.on("chainChanged",    () => location.reload());
+}
+</script>
+</body>
+</html>

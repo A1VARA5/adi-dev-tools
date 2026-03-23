@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ADI Chain NFT Mint</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1e2130;
+      --surface2: #252838;
+      --border: #2d3248;
+      --accent: #6366f1;
+      --accent-hover: #818cf8;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --subtle: #94a3b8;
+      --green: #4ade80;
+      --green-bg: #052e16;
+      --green-border: #166534;
+      --red: #f87171;
+      --red-bg: #450a0a;
+      --red-border: #7f1d1d;
+      --yellow: #fbbf24;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container { max-width: 700px; margin: 0 auto; }
+
+    .header { text-align: center; margin-bottom: 2rem; }
+    .adi-logo { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
+    .adi-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; }
+    h1 { font-size: 1.75rem; font-weight: 700; }
+    .subtitle { color: var(--subtle); margin-top: 0.4rem; font-size: 0.9rem; }
+
+    /* wallet */
+    .wallet-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.25rem; gap: 1rem;
+    }
+    .wallet-info { min-width: 0; }
+    .wallet-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 0.2rem; }
+    .wallet-addr { font-family: monospace; font-size: 0.82rem; color: var(--subtle); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .chain-badge { background: var(--accent); color: white; font-size: 0.68rem; padding: 3px 10px; border-radius: 999px; white-space: nowrap; flex-shrink: 0; }
+
+    /* buttons */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.6rem 1.25rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; transition: opacity 0.15s, transform 0.1s; white-space: nowrap; }
+    .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* card */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 1.25rem; }
+    .card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .card-title { font-size: 1rem; font-weight: 700; }
+    .card-body { padding: 1.5rem; }
+
+    /* stats */
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; text-align: center; }
+    .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+    .stat-label { font-size: 0.72rem; color: var(--muted); margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* mint section */
+    .mint-section { text-align: center; padding: 1rem 0; }
+    .mint-price-info { color: var(--subtle); font-size: 0.85rem; margin-bottom: 1rem; }
+    .mint-btn { padding: 0.75rem 2.5rem; font-size: 1rem; }
+
+    /* gallery */
+    .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
+    .nft-card {
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 12px;
+      overflow: hidden; transition: border-color 0.15s;
+    }
+    .nft-card:hover { border-color: var(--accent); }
+    .nft-card.mine { border-color: var(--accent); }
+    .nft-image {
+      width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem; background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+    }
+    .nft-info { padding: 0.6rem 0.75rem; }
+    .nft-id { font-size: 0.85rem; font-weight: 700; color: var(--text); }
+    .nft-owner { font-size: 0.68rem; color: var(--muted); font-family: monospace; margin-top: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nft-mine-tag { font-size: 0.62rem; background: var(--accent); color: white; padding: 1px 6px; border-radius: 999px; margin-top: 0.3rem; display: inline-block; }
+
+    /* toast */
+    .toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; z-index: 999; }
+    .toast { padding: 0.75rem 1.1rem; border-radius: 10px; font-size: 0.85rem; font-weight: 500; max-width: 320px; word-break: break-word; animation: slideIn 0.2s ease; }
+    .toast-ok  { background: var(--green-bg);  color: var(--green); border: 1px solid var(--green-border); }
+    .toast-err { background: var(--red-bg);    color: var(--red);   border: 1px solid var(--red-border); }
+    .toast-info { background: var(--surface2); color: var(--subtle); border: 1px solid var(--border); }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+    .loading { text-align: center; color: var(--muted); padding: 2rem; font-size: 0.9rem; }
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 0.5rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .empty-gallery { text-align: center; color: var(--muted); padding: 2rem; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="adi-logo"><span class="adi-dot"></span> ADI Chain Testnet</div>
+    <h1 id="collectionName">NFT Collection</h1>
+    <p class="subtitle">Mint and collect NFTs on ADI Chain — low fees, instant confirmation</p>
+  </div>
+
+  <!-- Wallet -->
+  <div class="wallet-card">
+    <div class="wallet-info">
+      <div class="wallet-label">Wallet</div>
+      <div class="wallet-addr" id="walletAddr">Not connected</div>
+    </div>
+    <span class="chain-badge">ADI Testnet</span>
+    <button class="btn btn-primary" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+  </div>
+
+  <!-- Collection stats -->
+  <div class="stats-grid">
+    <div class="stat-box">
+      <div class="stat-value" id="statMinted">—</div>
+      <div class="stat-label">Minted</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value" id="statMax">—</div>
+      <div class="stat-label">Max Supply</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value" id="statOwned">—</div>
+      <div class="stat-label">You Own</div>
+    </div>
+  </div>
+
+  <!-- Mint card -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Mint a Token</span>
+      <span id="mintStatusPill" style="font-size:0.75rem; color: var(--muted);">Loading...</span>
+    </div>
+    <div class="card-body">
+      <div class="mint-section">
+        <p class="mint-price-info" id="mintPriceInfo">Loading collection info...</p>
+        <button class="btn btn-primary mint-btn" id="mintBtn" onclick="mintToken()" disabled>
+          Mint NFT
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gallery -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Gallery</span>
+      <button class="btn btn-outline" style="padding:0.4rem 0.9rem; font-size:0.8rem;" onclick="loadGallery()">Refresh</button>
+    </div>
+    <div class="card-body" style="padding: 1rem;">
+      <div id="gallery" class="loading"><span class="spinner"></span>Loading...</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script type="module">
+import { BrowserProvider, Contract, JsonRpcProvider, formatEther, parseEther }
+  from "https://esm.sh/ethers@6?bundle";
+
+// ─── Config ───────────────────────────────────────────────────────────────────
+// TODO: Replace with your deployed contract address after running the deploy script
+const CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000";
+
+const ADI_TESTNET = {
+  chainId: "0x1869F",
+  chainName: "ADI Testnet",
+  rpcUrls: ["https://rpc.ab.testnet.adifoundation.ai"],
+  nativeCurrency: { name: "ADI", symbol: "ADI", decimals: 18 },
+  blockExplorerUrls: ["https://explorer.ab.testnet.adifoundation.ai"],
+};
+
+const CONTRACT_ABI = [
+  "function name() view returns (string)",
+  "function symbol() view returns (string)",
+  "function totalSupply() view returns (uint256)",
+  "function maxSupply() view returns (uint256)",
+  "function mintPrice() view returns (uint256)",
+  "function mintingOpen() view returns (bool)",
+  "function balanceOf(address) view returns (uint256)",
+  "function ownerOf(uint256) view returns (address)",
+  "function mint() payable returns (uint256)",
+];
+
+// ─── State ────────────────────────────────────────────────────────────────────
+let provider, signer, contract;
+let readProvider = new JsonRpcProvider(ADI_TESTNET.rpcUrls[0]);
+let readContract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, readProvider);
+let currentAddress = null;
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+function toast(msg, type = "info") {
+  const el = document.createElement("div");
+  el.className = "toast toast-" + type;
+  el.textContent = msg;
+  document.getElementById("toastContainer").appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+window.toast = toast;
+
+// ─── Wallet ───────────────────────────────────────────────────────────────────
+async function connectWallet() {
+  if (!window.ethereum) return toast("MetaMask not detected. Please install it.", "err");
+  try {
+    try {
+      await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: ADI_TESTNET.chainId }] });
+    } catch (e) {
+      if (e.code === 4902) await window.ethereum.request({ method: "wallet_addEthereumChain", params: [ADI_TESTNET] });
+      else throw e;
+    }
+    provider = new BrowserProvider(window.ethereum);
+    signer   = await provider.getSigner();
+    contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+    currentAddress = await signer.getAddress();
+
+    document.getElementById("walletAddr").textContent = currentAddress;
+    document.getElementById("connectBtn").textContent = "Connected";
+    document.getElementById("connectBtn").disabled = true;
+
+    await loadCollectionInfo();
+    await loadGallery();
+  } catch (err) {
+    toast("Connection failed: " + err.message, "err");
+  }
+}
+window.connectWallet = connectWallet;
+
+// ─── Collection info ──────────────────────────────────────────────────────────
+async function loadCollectionInfo() {
+  try {
+    const rc = contract || readContract;
+    const [name, minted, max, price, open] = await Promise.all([
+      rc.name(),
+      rc.totalSupply(),
+      rc.maxSupply(),
+      rc.mintPrice(),
+      rc.mintingOpen(),
+    ]);
+
+    document.getElementById("collectionName").textContent = name;
+    document.getElementById("statMinted").textContent = Number(minted).toLocaleString();
+    document.getElementById("statMax").textContent = Number(max).toLocaleString();
+
+    const isFree = price === 0n;
+    document.getElementById("mintPriceInfo").textContent = isFree
+      ? "Free mint — no ADI required"
+      : `Mint price: ${formatEther(price)} ADI`;
+
+    const soldOut = Number(minted) >= Number(max);
+    const mintBtn = document.getElementById("mintBtn");
+    const pill    = document.getElementById("mintStatusPill");
+
+    if (!open || soldOut) {
+      mintBtn.disabled = true;
+      mintBtn.textContent = soldOut ? "Sold Out" : "Minting Closed";
+      pill.textContent = soldOut ? "Sold out" : "Closed";
+      pill.style.color = "var(--red)";
+    } else {
+      mintBtn.disabled = !currentAddress;
+      pill.textContent = "Open";
+      pill.style.color = "var(--green)";
+    }
+
+    if (currentAddress && rc === contract) {
+      const owned = await rc.balanceOf(currentAddress);
+      document.getElementById("statOwned").textContent = Number(owned);
+    } else {
+      document.getElementById("statOwned").textContent = "—";
+    }
+  } catch (err) {
+    document.getElementById("mintPriceInfo").textContent = "Could not load collection info.";
+  }
+}
+window.loadCollectionInfo = loadCollectionInfo;
+
+// ─── Mint ─────────────────────────────────────────────────────────────────────
+async function mintToken() {
+  if (!contract) return toast("Connect wallet first.", "err");
+  try {
+    const price = await contract.mintPrice();
+    toast("Sending mint transaction...", "info");
+    const tx = await contract.mint({ value: price });
+    toast("Transaction sent — waiting for confirmation...", "info");
+    const receipt = await tx.wait();
+    toast("NFT minted! ✔ Block: " + receipt.blockNumber, "ok");
+    await loadCollectionInfo();
+    await loadGallery();
+  } catch (err) {
+    const msg = err?.reason || err?.message || "Unknown error";
+    toast("Mint failed: " + msg, "err");
+  }
+}
+window.mintToken = mintToken;
+
+// ─── Gallery ──────────────────────────────────────────────────────────────────
+async function loadGallery() {
+  const container = document.getElementById("gallery");
+  container.innerHTML = '<div class="loading"><span class="spinner"></span>Loading gallery...</div>';
+
+  try {
+    const rc = contract || readContract;
+    const total = Number(await rc.totalSupply());
+
+    if (total === 0) {
+      container.innerHTML = '<div class="empty-gallery">No tokens minted yet. Be the first!</div>';
+      return;
+    }
+
+    // Fetch owners for all tokens in parallel (batched to avoid rate limits)
+    const ownerPromises = [];
+    for (let i = 1; i <= total; i++) {
+      ownerPromises.push(rc.ownerOf(i).then(o => ({ id: i, owner: o })).catch(() => null));
+    }
+    const tokens = (await Promise.all(ownerPromises)).filter(Boolean);
+
+    container.innerHTML = "";
+    const grid = document.createElement("div");
+    grid.className = "gallery-grid";
+
+    const emojis = ["🎨","⚡","🔷","🌊","🔮","🦋","🌸","🎭","🏆","🌟","🔥","💎"];
+
+    for (const { id, owner } of tokens) {
+      const isMine = currentAddress && owner.toLowerCase() === currentAddress.toLowerCase();
+      const shortOwner = owner.slice(0, 6) + "..." + owner.slice(-4);
+
+      const card = document.createElement("div");
+      card.className = "nft-card" + (isMine ? " mine" : "");
+      card.innerHTML = `
+        <div class="nft-image">${emojis[(id - 1) % emojis.length]}</div>
+        <div class="nft-info">
+          <div class="nft-id">#${id}</div>
+          <div class="nft-owner">${shortOwner}</div>
+          ${isMine ? '<span class="nft-mine-tag">Yours</span>' : ""}
+        </div>
+      `;
+      grid.appendChild(card);
+    }
+
+    container.appendChild(grid);
+  } catch (err) {
+    container.innerHTML = '<div class="loading">Failed to load gallery: ' + escapeHtml(err.message) + '</div>';
+  }
+}
+window.loadGallery = loadGallery;
+
+// ─── Utils ────────────────────────────────────────────────────────────────────
+function escapeHtml(str) {
+  return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+window.addEventListener("load", async () => {
+  try { await loadCollectionInfo(); } catch (_) {}
+  try { await loadGallery(); } catch (_) {}
+  if (window.ethereum?.selectedAddress) connectWallet();
+});
+
+if (window.ethereum) {
+  window.ethereum.on("accountsChanged", () => location.reload());
+  window.ethereum.on("chainChanged",    () => location.reload());
+}
+</script>
+</body>
+</html>
