@@ -55,7 +55,7 @@ contract Deploy is Script {
         uint256 balance = deployer.balance;
         console.log("Deployer:", deployer);
         console.log("Balance: ", balance / 1e18, "ADI");
-        require(balance >= PAYMASTER_INITIAL_FUNDING + 0.01 ether, "Insufficient balance — get testnet ADI from faucet: http://faucet.ab.testnet.adifoundation.ai");
+        require(balance >= PAYMASTER_INITIAL_FUNDING + 0.01 ether, "Insufficient balance - get testnet ADI from faucet: http://faucet.ab.testnet.adifoundation.ai");
 
         vm.startBroadcast(deployerPrivateKey);
 
@@ -64,7 +64,9 @@ contract Deploy is Script {
         console.log("\n[1/3] ADIVoting deployed:");
         console.log("      Address:", address(voting));
         console.log("      Title:  ", title);
-        console.log("      Proposals:", proposals[0], "/", proposals[1], "/", proposals[2]);
+        console.log("      Proposals:", proposals[0]);
+        console.log("                ", proposals[1]);
+        console.log("                ", proposals[2]);
 
         // ── Deploy paymaster ──────────────────────────────────────────────────
         GaslessPaymaster paymaster = new GaslessPaymaster(address(voting));
@@ -79,19 +81,19 @@ contract Deploy is Script {
 
         vm.stopBroadcast();
 
-        // ── Summary ───────────────────────────────────────────────────────────
-        console.log("\n─────────────────────────────────────────────────────");
+        // Summary
+        console.log("\n-----------------------------------------------------");
         console.log(" DEPLOYMENT COMPLETE");
-        console.log("─────────────────────────────────────────────────────");
-        console.log(" VOTING_ADDRESS  =", address(voting));
+        console.log("-----------------------------------------------------");
+        console.log(" VOTING_ADDRESS   =", address(voting));
         console.log(" PAYMASTER_ADDRESS =", address(paymaster));
-        console.log("─────────────────────────────────────────────────────");
+        console.log("-----------------------------------------------------");
         console.log(" Next steps:");
         console.log("   1. Paste both addresses into frontend/index.html");
         console.log("   2. npx serve frontend");
         console.log("   3. Open http://localhost:3000");
-        console.log("   4. Vote gaslessly — users pay 0 ADI!");
-        console.log("─────────────────────────────────────────────────────");
+        console.log("   4. Vote gaslessly - users pay 0 ADI!");
+        console.log("-----------------------------------------------------");
     }
 
     function _envOr(string memory key, string memory defaultVal) internal view returns (string memory) {

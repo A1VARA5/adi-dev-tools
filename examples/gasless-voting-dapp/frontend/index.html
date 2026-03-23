@@ -498,21 +498,18 @@
 <!-- ── Script ────────────────────────────────────────────────────────────── -->
 <script type="module">
 // ── Imports ──────────────────────────────────────────────────────────────────
-import {
-  createPublicClient, createWalletClient, custom, http,
-  defineChain, formatEther, parseAbi, encodeFunctionData
-} from 'https://esm.sh/viem@2';
-import {
-  eip712WalletActions, getGeneralPaymasterInput, publicActionsL2
-} from 'https://esm.sh/viem@2/zksync';
+import { BrowserProvider, Contract, JsonRpcProvider, utils as zkUtils } from 'https://esm.sh/zksync-ethers@6';
+
+// Simple wei → ADI formatter (replaces formatEther from ethers/viem)
+const formatEther = (wei) => (Number(BigInt(wei)) / 1e18);
 
 // ── Contract addresses ────────────────────────────────────────────────────────
 // ⚠️  REPLACE THESE after running: forge script script/Deploy.s.sol --broadcast
-const VOTING_ADDRESS   = '0x0000000000000000000000000000000000000000';
-const PAYMASTER_ADDRESS = '0x0000000000000000000000000000000000000000';
+const VOTING_ADDRESS   = '0xCf3c96c15AA11aD470C923d4e580b73c171B1595';
+const PAYMASTER_ADDRESS = '0x0cb9523eC2b81042664B0D99F075C3BdD7f3cD18';
 
 // ── ABIs ─────────────────────────────────────────────────────────────────────
-const VOTING_ABI = parseAbi([
+const VOTING_ABI = [
   'function vote(uint256 proposalIndex)',
   'function proposalCount() view returns (uint256)',
   'function proposals(uint256) view returns (string description, uint256 voteCount)',
@@ -522,37 +519,24 @@ const VOTING_ABI = parseAbi([
   'function owner() view returns (address)',
   'function closeVoting()',
   'function winningProposal() view returns (uint256 winnerIndex, string description, uint256 voteCount)',
-]);
+];
 
-const PAYMASTER_ABI = parseAbi([
+const PAYMASTER_ABI = [
   'function getBalance() view returns (uint256)',
   'function sponsoredContract() view returns (address)',
   'function withdraw(address payable _to)',
-]);
+];
 
-// ── ADI Chain definition ──────────────────────────────────────────────────────
-const adiTestnet = defineChain({
-  id: 99999,
-  name: 'ADI Testnet',
-  nativeCurrency: { name: 'ADI', symbol: 'ADI', decimals: 18 },
-  rpcUrls: { default: { http: ['https://rpc.ab.testnet.adifoundation.ai'] } },
-  blockExplorers: {
-    default: { name: 'ADI Explorer', url: 'https://explorer.ab.testnet.adifoundation.ai' }
-  },
-});
+const RPC = 'https://rpc.ab.testnet.adifoundation.ai';
 
 // ── State ─────────────────────────────────────────────────────────────────────
-let publicClient = createPublicClient({
-  chain: adiTestnet,
-  transport: http(),
-}).extend(publicActionsL2());
-
-let walletClient  = null;
-let userAddress   = null;
-let isOwner       = false;
-let votingActive  = true;
-let hasVoted      = false;
-let proposals     = [];
+let readProvider = new JsonRpcProvider(RPC);
+let signer       = null;
+let userAddress  = null;
+let isOwner      = false;
+let votingActive = true;
+let hasVoted     = false;
+let proposals    = [];
 
 // ── Config check ─────────────────────────────────────────────────────────────
 const ZERO = '0x0000000000000000000000000000000000000000';
@@ -570,17 +554,13 @@ window.connectWallet = async () => {
     await window.ethereum.request({ method: 'eth_requestAccounts' });
     await ensureADINetwork();
 
-    walletClient = createWalletClient({
-      chain: adiTestnet,
-      transport: custom(window.ethereum),
-    }).extend(eip712WalletActions());
-
-    const [addr] = await walletClient.getAddresses();
-    userAddress = addr;
+    const browserProvider = new BrowserProvider(window.ethereum);
+    signer = await browserProvider.getSigner();
+    userAddress = await signer.getAddress();
 
     document.getElementById('wallet-dot').classList.add('green');
     document.getElementById('wallet-label').textContent = 'Connected';
-    document.getElementById('wallet-addr').textContent = addr.slice(0,6) + '…' + addr.slice(-4);
+    document.getElementById('wallet-addr').textContent = userAddress.slice(0,6) + '…' + userAddress.slice(-4);
     document.getElementById('wallet-addr').classList.add('connected');
     document.getElementById('connect-btn').textContent = '✓ Connected';
     document.getElementById('connect-btn').disabled = true;
@@ -624,19 +604,16 @@ window.refreshAll = async () => {
 
 async function loadBlockNumber() {
   try {
-    const block = await publicClient.getBlockNumber();
-    document.getElementById('block-number').textContent = block.toLocaleString();
+    const block = await readProvider.getBlockNumber();
+    document.getElementById('block-number').textContent = Number(block).toLocaleString();
   } catch {}
 }
 
 async function loadPaymasterBalance() {
   if (PAYMASTER_ADDRESS === ZERO) return;
   try {
-    const balance = await publicClient.readContract({
-      address: PAYMASTER_ADDRESS,
-      abi: PAYMASTER_ABI,
-      functionName: 'getBalance',
-    });
+    const pm = new Contract(PAYMASTER_ADDRESS, PAYMASTER_ABI, readProvider);
+    const balance = await pm.getBalance();
     const adi = parseFloat(formatEther(balance));
     const el = document.getElementById('pm-balance-num');
     el.textContent = adi.toFixed(4) + ' ADI';
@@ -653,12 +630,13 @@ async function loadPollData() {
   }
 
   try {
-    // Fetch title, active, proposal count, owner in parallel
+    const voting = new Contract(VOTING_ADDRESS, VOTING_ABI, readProvider);
+
     const [title, active, count, owner] = await Promise.all([
-      publicClient.readContract({ address: VOTING_ADDRESS, abi: VOTING_ABI, functionName: 'title' }),
-      publicClient.readContract({ address: VOTING_ADDRESS, abi: VOTING_ABI, functionName: 'active' }),
-      publicClient.readContract({ address: VOTING_ADDRESS, abi: VOTING_ABI, functionName: 'proposalCount' }),
-      publicClient.readContract({ address: VOTING_ADDRESS, abi: VOTING_ABI, functionName: 'owner' }),
+      voting.title(),
+      voting.active(),
+      voting.proposalCount(),
+      voting.owner(),
     ]);
 
     votingActive = active;
@@ -669,38 +647,17 @@ async function loadPollData() {
       ? '🟢 <b style="color:var(--green)">Voting open</b>'
       : '🔴 <b style="color:var(--red)">Voting closed</b>';
 
-    if (active) {
-      document.getElementById('poll-title').querySelector?.('.poll-closed-badge')?.remove();
-    } else {
-      const badge = document.createElement('span');
-      badge.className = 'poll-closed-badge';
-      badge.textContent = 'Closed';
-      document.getElementById('poll-title').appendChild(badge);
-    }
-
-    // Load voter status
     if (userAddress) {
-      hasVoted = await publicClient.readContract({
-        address: VOTING_ADDRESS,
-        abi: VOTING_ABI,
-        functionName: 'hasVoted',
-        args: [userAddress],
-      });
+      hasVoted = await voting.hasVoted(userAddress);
     }
 
-    // Load proposals
     const propPromises = [];
     for (let i = 0; i < Number(count); i++) {
-      propPromises.push(
-        publicClient.readContract({
-          address: VOTING_ADDRESS, abi: VOTING_ABI,
-          functionName: 'proposals', args: [BigInt(i)],
-        })
-      );
+      propPromises.push(voting.proposals(i));
     }
-    proposals = await Promise.all(propPromises);
+    const rawProps = await Promise.all(propPromises);
+    proposals = rawProps.map(p => [p.description, p.voteCount]);
 
-    // Find winning proposal
     let winnerIdx = 0;
     let maxVotes = 0n;
     proposals.forEach(([, votes], idx) => {
@@ -712,7 +669,6 @@ async function loadPollData() {
 
     renderProposals(proposals, winnerIdx, totalVotes, active);
 
-    // Show owner panel
     if (isOwner) {
       document.getElementById('owner-panel').style.display = 'block';
       document.getElementById('close-voting-btn').disabled = !active;
@@ -735,7 +691,7 @@ function renderProposals(props, winnerIdx, totalVotes, active) {
     const div = document.createElement('div');
     div.className = 'proposal-item' + (isWinner ? ' winner' : '');
 
-    const canVote = active && !hasVoted && userAddress && walletClient;
+    const canVote = active && !hasVoted && userAddress && signer;
 
     div.innerHTML = `
       ${isWinner ? '<div class="winner-tag">🏆 Winner</div>' : ''}
@@ -767,7 +723,7 @@ function renderProposals(props, winnerIdx, totalVotes, active) {
 
 // ── Cast gasless vote ─────────────────────────────────────────────────────────
 window.castVote = async (proposalIndex) => {
-  if (!walletClient || !userAddress) {
+  if (!signer || !userAddress) {
     showToast('⚠️', 'Not connected', 'Connect your wallet first');
     return;
   }
@@ -782,38 +738,38 @@ window.castVote = async (proposalIndex) => {
   showLoading('Sending gasless transaction…');
 
   try {
-    // Build the general paymaster input (encodes IPaymasterFlow.general("0x"))
-    const paymasterInput = getGeneralPaymasterInput({ innerInput: '0x' });
+    const voting = new Contract(VOTING_ADDRESS, VOTING_ABI, signer);
 
-    const hash = await walletClient.writeContract({
-      address: VOTING_ADDRESS,
-      abi: VOTING_ABI,
-      functionName: 'vote',
-      args: [BigInt(proposalIndex)],
-      account: userAddress,
-      paymaster: PAYMASTER_ADDRESS,
-      paymasterInput,
+    // Build ZKsync native paymaster params — general flow, no token approval needed
+    const paymasterParams = zkUtils.getPaymasterParams(PAYMASTER_ADDRESS, {
+      type: 'General',
+      innerInput: new Uint8Array(),
+    });
+
+    const tx = await voting.vote(proposalIndex, {
+      customData: {
+        paymasterParams,
+        gasPerPubdata: zkUtils.DEFAULT_GAS_PER_PUBDATA_LIMIT,
+      },
     });
 
     showLoading('Waiting for confirmation…');
-
-    const receipt = await publicClient.waitForTransactionReceipt({ hash });
+    const receipt = await tx.wait();
 
     hideLoading();
     hasVoted = true;
-    showToast('✅', 'Vote cast — 0 gas paid!', `Tx: ${hash.slice(0,10)}…${hash.slice(-8)}`);
-
+    showToast('✅', 'Vote cast — 0 gas paid!', `Tx: ${tx.hash.slice(0,10)}…${tx.hash.slice(-8)}`);
     await refreshAll();
 
   } catch (err) {
     hideLoading();
     if (btn) { btn.disabled = false; btn.innerHTML = '⚡ Vote Free'; }
 
-    const msg = err.shortMessage || err.message || String(err);
+    const msg = err.reason || err.shortMessage || err.message || String(err);
     if (msg.includes('AlreadyVoted')) {
       showToast('⚠️', 'Already voted', 'Each wallet can only vote once');
     } else if (msg.includes('InsufficientPaymasterBalance')) {
-      showToast('❌', 'Paymaster out of funds', 'The paymaster needs more ADI. Owner: fund via wallet_sendTransaction.');
+      showToast('❌', 'Paymaster out of funds', 'The paymaster needs more ADI.');
     } else if (msg.includes('VotingNotActive')) {
       showToast('⚠️', 'Voting is closed', 'This poll has ended');
     } else {
@@ -824,44 +780,35 @@ window.castVote = async (proposalIndex) => {
 
 // ── Owner: close voting ───────────────────────────────────────────────────────
 window.closeVoting = async () => {
-  if (!walletClient) return;
+  if (!signer) return;
   showLoading('Closing voting…');
   try {
-    const hash = await walletClient.writeContract({
-      address: VOTING_ADDRESS,
-      abi: VOTING_ABI,
-      functionName: 'closeVoting',
-      account: userAddress,
-    });
-    await publicClient.waitForTransactionReceipt({ hash });
+    const voting = new Contract(VOTING_ADDRESS, VOTING_ABI, signer);
+    const tx = await voting.closeVoting();
+    await tx.wait();
     hideLoading();
-    showToast('✅', 'Voting closed', `Tx: ${hash.slice(0,10)}…`);
+    showToast('✅', 'Voting closed', `Tx: ${tx.hash.slice(0,10)}…`);
     await refreshAll();
   } catch (err) {
     hideLoading();
-    showToast('❌', 'Failed', err.shortMessage || err.message);
+    showToast('❌', 'Failed', err.reason || err.message);
   }
 };
 
 // ── Owner: withdraw paymaster ─────────────────────────────────────────────────
 window.withdrawPaymaster = async () => {
-  if (!walletClient) return;
+  if (!signer) return;
   showLoading('Withdrawing paymaster funds…');
   try {
-    const hash = await walletClient.writeContract({
-      address: PAYMASTER_ADDRESS,
-      abi: PAYMASTER_ABI,
-      functionName: 'withdraw',
-      args: [userAddress],
-      account: userAddress,
-    });
-    await publicClient.waitForTransactionReceipt({ hash });
+    const pm = new Contract(PAYMASTER_ADDRESS, PAYMASTER_ABI, signer);
+    const tx = await pm.withdraw(userAddress);
+    await tx.wait();
     hideLoading();
-    showToast('✅', 'Withdrawn', `Paymaster funds returned to your wallet`);
+    showToast('✅', 'Withdrawn', 'Paymaster funds returned to your wallet');
     await loadPaymasterBalance();
   } catch (err) {
     hideLoading();
-    showToast('❌', 'Failed', err.shortMessage || err.message);
+    showToast('❌', 'Failed', err.reason || err.message);
   }
 };
 
@@ -902,7 +849,6 @@ function escHtml(str) {
     } catch {}
   }
   setInterval(loadBlockNumber, 10000);
-})();
-</script>
+})();</script>
 </body>
 </html>
