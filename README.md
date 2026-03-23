@@ -164,6 +164,8 @@ await switchToADITestnet();
 
 ## Network
 
+ADI Chain mainnet launched March 2026. Both networks are live.
+
 | | Testnet | Mainnet |
 |---|---|---|
 | Chain ID | `99999` | `36900` |
@@ -171,6 +173,8 @@ await switchToADITestnet();
 | Explorer | `https://explorer.ab.testnet.adifoundation.ai` | `https://explorer.adifoundation.ai` |
 | Faucet | `http://faucet.ab.testnet.adifoundation.ai` | — |
 | Bridge | `https://bridge.testnet.adifoundation.ai` | — |
+
+> **Windows developers**: The public RPC endpoints above are all you need. The local ADI node (`docker/`) is Linux-only and is not intended for general use — ADI Foundation runs its own prover infrastructure and is not planning external node providers for the foreseeable future.
 
 ---
 
@@ -408,6 +412,8 @@ pnpm --filter create-adi-app build
 
 Every dApp on ADI Chain is automatically a ZK dApp. You write standard Solidity — no ZK circuits, no proof SDK, no extra configuration. The Airbender prover collects transaction batches, generates a STARK proof of the state transition, wraps it into a FFLONK proof, and posts it to Ethereum L1 for verification. Only valid batches are finalised. Developers get cryptographic security for free just by deploying on ADI.
 
+ADI Foundation operates its own prover and sequencer infrastructure. There is no external prover program and none is planned. As a dApp developer you do not need to run any node — just deploy your contracts to the RPC endpoints above.
+
 ---
 
 ## Links
@@ -417,5 +423,6 @@ Every dApp on ADI Chain is automatically a ZK dApp. You write standard Solidity 
 - Testnet faucet: http://faucet.ab.testnet.adifoundation.ai
 - Testnet explorer: https://explorer.ab.testnet.adifoundation.ai
 - ADI Foundation GitHub: https://github.com/ADI-Foundation-Labs
+- Discord: https://discord.gg/dHMNTjwNcM
 - This repo: https://github.com/A1VARA5/adi-dev-tools
 - npm org: https://npmjs.com/org/adi-devtools
