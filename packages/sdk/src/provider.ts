@@ -50,12 +50,18 @@ export function getADIMainnetProvider(): ethers.JsonRpcProvider {
  * const contract = new ethers.Contract(address, abi, signer);
  */
 export function getBrowserProvider(): ethers.BrowserProvider {
-  if (typeof window === "undefined" || !window.ethereum) {
+  if (typeof window === "undefined") {
     throw new Error(
       "No injected wallet found. Install MetaMask or another EVM wallet."
     );
   }
-  return new ethers.BrowserProvider(window.ethereum as ethers.Eip1193Provider);
+  const ethereum = (window as Window & { ethereum?: unknown }).ethereum;
+  if (!ethereum) {
+    throw new Error(
+      "No injected wallet found. Install MetaMask or another EVM wallet."
+    );
+  }
+  return new ethers.BrowserProvider(ethereum as ethers.Eip1193Provider);
 }
 
 /**

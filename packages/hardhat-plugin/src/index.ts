@@ -40,7 +40,8 @@ declare module "hardhat/types/config" {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type HttpNetworkUserConfig = any;
 
-extendConfig((config, userConfig) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+extendConfig((config: any, userConfig: any) => {
   // Build base configs from the SDK constants
   const testnetBase: HttpNetworkUserConfig = {
     type: "http",

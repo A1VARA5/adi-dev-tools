@@ -1,5 +1,8 @@
 # ADI Dev Tools
 
+[![CI](https://github.com/A1VARA5/adi-dev-tools/actions/workflows/ci.yml/badge.svg)](https://github.com/A1VARA5/adi-dev-tools/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 The missing developer ecosystem for [ADI Chain](https://docs.adi.foundation) — a ZK rollup L2 secured by Ethereum.
 
 ADI Chain is fully EVM-compatible but had zero developer-facing tooling. This monorepo fills every gap.

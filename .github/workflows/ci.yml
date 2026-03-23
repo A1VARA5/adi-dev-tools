@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build & Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Build in strict dependency order
+      - name: Build @adi-foundation/sdk
+        run: pnpm --filter @adi-foundation/sdk build
+
+      - name: Build hardhat-adi-network
+        run: pnpm --filter hardhat-adi-network build
+
+      - name: Build create-adi-app
+        run: pnpm --filter create-adi-app build
+
+      # Type-check (no-emit) acts as lint for TypeScript projects
+      - name: Lint @adi-foundation/sdk
+        run: pnpm --filter @adi-foundation/sdk lint
+
+      - name: Lint hardhat-adi-network
+        run: pnpm --filter hardhat-adi-network lint
+
+      - name: Lint create-adi-app
+        run: pnpm --filter create-adi-app lint

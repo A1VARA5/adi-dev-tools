@@ -18,7 +18,7 @@ build/
 *.tsbuildinfo
 .npm/
 .pnpm-store/
-pnpm-lock.yaml
+# pnpm-lock.yaml is intentionally committed for reproducible CI installs
 package-lock.json
 
 # ── Foundry ───────────────────────────────────────────────────────────────────

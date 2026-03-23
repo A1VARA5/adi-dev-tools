@@ -1,5 +1,13 @@
 import { ADI_MAINNET, ADI_TESTNET, type ADINetwork } from "./chains.js";
 
+/** Minimal EIP-1193 provider interface for injected browser wallets (MetaMask, etc.) */
+interface EIP1193Provider {
+  request(args: { method: string; params?: unknown[] }): Promise<unknown>;
+  on(eventName: string, handler: (...args: unknown[]) => void): void;
+  removeListener(eventName: string, handler: (...args: unknown[]) => void): void;
+  isMetaMask?: boolean;
+}
+
 // Minimal type for the wallet_addEthereumChain parameter
 interface AddEthereumChainParams {
   chainId: string;
@@ -19,13 +27,19 @@ function buildChainParams(net: ADINetwork): AddEthereumChainParams {
   };
 }
 
-function getEthereum(): typeof window.ethereum {
-  if (typeof window === "undefined" || !window.ethereum) {
+function getEthereum(): EIP1193Provider {
+  if (typeof window === "undefined") {
     throw new Error(
       "No injected wallet found. Install MetaMask or another EVM wallet."
     );
   }
-  return window.ethereum;
+  const eth = (window as Window & { ethereum?: EIP1193Provider }).ethereum;
+  if (!eth) {
+    throw new Error(
+      "No injected wallet found. Install MetaMask or another EVM wallet."
+    );
+  }
+  return eth;
 }
 
 /**
