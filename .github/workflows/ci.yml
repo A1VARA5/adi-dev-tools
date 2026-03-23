@@ -30,8 +30,8 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       # Build in strict dependency order
-      - name: Build @adi-foundation/sdk
-        run: pnpm --filter @adi-foundation/sdk build
+      - name: Build @adi-devtools/sdk
+        run: pnpm --filter @adi-devtools/sdk build
 
       - name: Build hardhat-adi-network
         run: pnpm --filter hardhat-adi-network build
@@ -40,8 +40,8 @@ jobs:
         run: pnpm --filter create-adi-app build
 
       # Type-check (no-emit) acts as lint for TypeScript projects
-      - name: Lint @adi-foundation/sdk
-        run: pnpm --filter @adi-foundation/sdk lint
+      - name: Lint @adi-devtools/sdk
+        run: pnpm --filter @adi-devtools/sdk lint
 
       - name: Lint hardhat-adi-network
         run: pnpm --filter hardhat-adi-network lint

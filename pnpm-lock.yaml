@@ -16,7 +16,7 @@ importers:
 
   packages/create-adi-app:
     dependencies:
-      '@adi-foundation/sdk':
+      '@adi-devtools/sdk':
         specifier: workspace:*
         version: link:../sdk
       commander:
@@ -53,7 +53,7 @@ importers:
 
   packages/hardhat-plugin:
     dependencies:
-      '@adi-foundation/sdk':
+      '@adi-devtools/sdk':
         specifier: workspace:*
         version: link:../sdk
     devDependencies:

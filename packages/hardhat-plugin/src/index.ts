@@ -25,7 +25,7 @@
  */
 
 import { extendConfig } from "hardhat/config";
-import { ADI_TESTNET, ADI_MAINNET } from "@adi-foundation/sdk";
+import { ADI_TESTNET, ADI_MAINNET } from "@adi-devtools/sdk";
 
 // Augment Hardhat's type system so TypeScript knows about our network names
 import "hardhat/types/config";
@@ -74,4 +74,4 @@ extendConfig((config: any, userConfig: any) => {
 });
 
 // Re-export constants so plugin consumers can import from one place
-export { ADI_TESTNET, ADI_MAINNET } from "@adi-foundation/sdk";
+export { ADI_TESTNET, ADI_MAINNET } from "@adi-devtools/sdk";

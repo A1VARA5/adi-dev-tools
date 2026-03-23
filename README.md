@@ -11,9 +11,9 @@ ADI Chain is fully EVM-compatible but had zero developer-facing tooling. This mo
 
 | Package | npm name | What it does |
 |---|---|---|
-| [`packages/sdk`](packages/sdk) | `@adi-foundation/sdk` | Network constants, ethers.js/viem providers, MetaMask helpers |
+| [`packages/sdk`](packages/sdk) | `@adi-devtools/sdk` | Network constants, ethers.js/viem providers, MetaMask helpers |
 | [`packages/hardhat-plugin`](packages/hardhat-plugin) | `hardhat-adi-network` | Auto-injects ADI testnet + mainnet into Hardhat configs |
-| [`packages/contracts`](packages/contracts) | `@adi-foundation/contracts` | Audited Solidity templates (Voting, Token, NFT, Faucet, Paymaster) |
+| [`packages/contracts`](packages/contracts) | `@adi-devtools/contracts` | Audited Solidity templates (Voting, Token, NFT, Faucet, Paymaster) |
 | [`packages/create-adi-app`](packages/create-adi-app) | `create-adi-app` | `npx create-adi-app my-dapp` — one-command project scaffold |
 
 ## Examples
@@ -34,7 +34,7 @@ npx hardhat ignition deploy ignition/modules/Counter.ts --network adi-testnet
 Or use the SDK directly:
 
 ```typescript
-import { ADI_TESTNET, getADIProvider, switchToADITestnet } from "@adi-foundation/sdk";
+import { ADI_TESTNET, getADIProvider, switchToADITestnet } from "@adi-devtools/sdk";
 
 const provider = getADIProvider("testnet");
 const block = await provider.getBlockNumber();

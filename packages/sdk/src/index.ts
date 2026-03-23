@@ -1,12 +1,12 @@
 /**
- * @adi-foundation/sdk
+ * @adi-devtools/sdk
  *
  * JavaScript/TypeScript SDK for ADI Chain.
  * Provides pre-configured network constants, ethers.js / viem providers,
  * and MetaMask helpers so you don't have to copy-paste RPC URLs and chain IDs.
  *
  * @example
- * import { ADI_TESTNET, getADIProvider, switchToADITestnet } from "@adi-foundation/sdk";
+ * import { ADI_TESTNET, getADIProvider, switchToADITestnet } from "@adi-devtools/sdk";
  *
  * const provider = getADIProvider("testnet");
  * const block = await provider.getBlockNumber();

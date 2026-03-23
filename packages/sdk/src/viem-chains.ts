@@ -3,7 +3,7 @@
  * Use with wagmi or viem directly.
  *
  * @example
- * import { adiTestnet } from "@adi-foundation/sdk/viem";
+ * import { adiTestnet } from "@adi-devtools/sdk/viem";
  * import { createPublicClient, http } from "viem";
  *
  * const client = createPublicClient({ chain: adiTestnet, transport: http() });

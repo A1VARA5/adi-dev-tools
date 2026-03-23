@@ -1,5 +1,5 @@
 {
-  "name": "@adi-foundation/sdk",
+  "name": "@adi-devtools/sdk",
   "version": "0.1.0",
   "description": "JavaScript/TypeScript SDK for ADI Chain — pre-configured ethers.js + viem helpers",
   "main": "dist/index.js",

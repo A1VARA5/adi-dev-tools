@@ -22,7 +22,7 @@
     "url": "https://github.com/A1VARA5/adi-dev-tools/issues"
   },
   "dependencies": {
-    "@adi-foundation/sdk": "workspace:*"
+    "@adi-devtools/sdk": "workspace:*"
   },
   "devDependencies": {
     "hardhat": "^3.0.0",

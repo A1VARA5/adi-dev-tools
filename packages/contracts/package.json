@@ -1,5 +1,5 @@
 {
-  "name": "@adi-foundation/contracts",
+  "name": "@adi-devtools/contracts",
   "version": "0.1.0",
   "description": "Solidity contract templates for building on ADI Chain",
   "files": ["src"],
