@@ -497,11 +497,8 @@
 
 <!-- ── Script ────────────────────────────────────────────────────────────── -->
 <script type="module">
-// ── Imports ──────────────────────────────────────────────────────────────────
-import { BrowserProvider, Contract, JsonRpcProvider, utils as zkUtils } from 'https://esm.sh/zksync-ethers@6';
-
-// Simple wei → ADI formatter (replaces formatEther from ethers/viem)
-const formatEther = (wei) => (Number(BigInt(wei)) / 1e18);
+// ── Imports (ethers@6 — browser-native) ─────────────────────────────────────────
+import { BrowserProvider, Contract, JsonRpcProvider, formatEther } from 'https://esm.sh/ethers@6?bundle';
 
 // ── Contract addresses ────────────────────────────────────────────────────────
 // ⚠️  REPLACE THESE after running: forge script script/Deploy.s.sol --broadcast
@@ -618,7 +615,7 @@ async function loadPaymasterBalance() {
     const el = document.getElementById('pm-balance-num');
     el.textContent = adi.toFixed(4) + ' ADI';
     el.className = 'pm-balance-num ' + (adi > 0.01 ? 'healthy' : adi > 0 ? 'low' : 'empty');
-  } catch {}
+  } catch (e) { console.warn('loadPaymasterBalance:', e.message); }
 }
 
 async function loadPollData() {
@@ -705,7 +702,7 @@ function renderProposals(props, winnerIdx, totalVotes, active) {
       <div class="vote-btn-row">
         ${canVote
           ? `<button class="btn btn-green btn-sm" onclick="castVote(${idx})" id="vote-btn-${idx}">
-               ⚡ Vote Free
+               ⚡ Vote
              </button>`
           : ''
         }
@@ -735,45 +732,33 @@ window.castVote = async (proposalIndex) => {
   const btn = document.getElementById(`vote-btn-${proposalIndex}`);
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Signing…'; }
 
-  showLoading('Sending gasless transaction…');
+  showLoading('Sending transaction…');
 
   try {
     const voting = new Contract(VOTING_ADDRESS, VOTING_ABI, signer);
-
-    // Build ZKsync native paymaster params — general flow, no token approval needed
-    const paymasterParams = zkUtils.getPaymasterParams(PAYMASTER_ADDRESS, {
-      type: 'General',
-      innerInput: new Uint8Array(),
-    });
-
-    const tx = await voting.vote(proposalIndex, {
-      customData: {
-        paymasterParams,
-        gasPerPubdata: zkUtils.DEFAULT_GAS_PER_PUBDATA_LIMIT,
-      },
-    });
+    const tx = await voting.vote(proposalIndex);
 
     showLoading('Waiting for confirmation…');
     const receipt = await tx.wait();
 
     hideLoading();
     hasVoted = true;
-    showToast('✅', 'Vote cast — 0 gas paid!', `Tx: ${tx.hash.slice(0,10)}…${tx.hash.slice(-8)}`);
+    const gasUsed = receipt.gasUsed;
+    showToast('✅', 'Vote cast!', `Tx: ${tx.hash.slice(0,10)}…${tx.hash.slice(-8)} | Gas: ${gasUsed}`);
     await refreshAll();
 
   } catch (err) {
     hideLoading();
-    if (btn) { btn.disabled = false; btn.innerHTML = '⚡ Vote Free'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = '⚡ Vote'; }
 
-    const msg = err.reason || err.shortMessage || err.message || String(err);
-    if (msg.includes('AlreadyVoted')) {
+    const raw = err?.error?.data?.message || err?.error?.message || err?.reason || err?.shortMessage || err?.message || String(err);
+    console.error('[castVote] full error:', err);
+    if (raw.includes('AlreadyVoted') || raw.includes('already')) {
       showToast('⚠️', 'Already voted', 'Each wallet can only vote once');
-    } else if (msg.includes('InsufficientPaymasterBalance')) {
-      showToast('❌', 'Paymaster out of funds', 'The paymaster needs more ADI.');
-    } else if (msg.includes('VotingNotActive')) {
+    } else if (raw.includes('VotingNotActive') || raw.includes('not active')) {
       showToast('⚠️', 'Voting is closed', 'This poll has ended');
     } else {
-      showToast('❌', 'Transaction failed', msg.slice(0, 140));
+      showToast('❌', 'Transaction failed', raw.slice(0, 160));
     }
   }
 };

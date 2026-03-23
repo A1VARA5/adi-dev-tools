@@ -1,37 +1,30 @@
-# Gasless Voting dApp — ADI Chain
+# Voting dApp — ADI Chain
 
-A production-ready voting dApp where **users pay zero gas**. The dApp operator funds a paymaster contract that covers gas fees on behalf of voters.
+A production-ready on-chain voting dApp built on ADI Chain. Wallets connect via MetaMask, cast votes, and results are stored permanently on-chain and proved by ADI's ZK rollup.
 
-Built on **ADI Chain's native Account Abstraction** — no external bundler or ERC-4337 EntryPoint needed. Any wallet (MetaMask, injected) works out of the box.
+> **Gas note:** ADI Chain fees are extremely cheap (sub-cent). While this example deploys a `GaslessPaymaster` contract for reference, **ADI Chain OS (Airbender) uses standard EVM transaction types** — ZKSync native AA type-113 transactions are not supported on this stack. Votes are sent as regular EIP-1559 transactions. The `GaslessPaymaster.sol` contract is included as an educational reference for when paymaster support is added in a future protocol version.
 
 ---
 
 ## How it works
 
 ```
-User clicks "Vote Free"
+User clicks "⚡ Vote"
   │
   ▼
-Frontend builds a ZKsync type-113 (EIP-712) transaction
-  │  └─ normal vote() calldata
-  │  └─ paymaster: GaslessPaymaster address
-  │  └─ paymasterInput: general("0x")
+Frontend encodes vote(proposalIndex) calldata via ethers.js
   │
   ▼
-MetaMask signs the typed data (eth_signTypedData_v4)
-  │
-  ▼
-ADI Chain bootloader calls GaslessPaymaster.validateAndPayForPaymasterTransaction()
-  │  └─ Checks: correct paymaster flow (general)
-  │  └─ Checks: transaction targets the voting contract
-  │  └─ Pays bootloader the gas cost from paymaster balance
+MetaMask signs a standard EIP-1559 transaction (type 2)
   │
   ▼
 vote() executes on ADIVoting.sol
-Voter's wallet is charged ZERO ADI
+  │  └─ Checks: wallet hasn\'t voted before
+  │  └─ Increments proposal.voteCount
   │
   ▼
-Airbender generates ZK proof → posted to Ethereum L1
+Airbender generates ZK proof of state transition
+proof posted and verified on Ethereum L1
 ```
 
 ---
@@ -41,8 +34,7 @@ Airbender generates ZK proof → posted to Ethereum L1
 | Layer | Tech |
 |---|---|
 | Smart contracts | Solidity 0.8.24, Foundry |
-| Paymaster interface | ZKsync native AA (not ERC-4337) |
-| Frontend | Single HTML file — viem v2 + viem/zksync (CDN) |
+| Frontend | Single HTML file — ethers.js v6 (CDN, no build step) |
 | Network | ADI Chain testnet (Chain ID 99999) |
 
 ---
@@ -149,28 +141,21 @@ function winningProposal() external view returns (uint256, string, uint256)
 function closeVoting() external onlyOwner
 ```
 
-### `GaslessPaymaster.sol`
+### `GaslessPaymaster.sol` (reference only)
 
-ZKsync native paymaster. Implements `IPaymaster` — the bootloader calls this before every transaction.
+A ZKsync-style native paymaster contract. Implements `IPaymaster` — on chains where the bootloader invokes it before every transaction, this contract pays gas on behalf of users.
+
+> **ADI Chain OS (Airbender) does not call paymasters today.** This contract is deployed and included as a reference implementation for a future protocol upgrade. It compiles and deploys normally.
 
 ```solidity
-// Called by bootloader before tx execution — pays gas on user's behalf
+// Called by bootloader before tx execution (future support)
 function validateAndPayForPaymasterTransaction(...) external payable returns (bytes4 magic, bytes memory context)
-
-// Called by bootloader after tx — no-op for this simple paymaster
-function postTransaction(...) external payable
 
 // Management (owner only)
 function withdraw(address payable _to) external
 function setSponsoredContract(address _newContract) external
 function getBalance() external view returns (uint256)
 ```
-
-**Validation logic:**
-1. Ensures `paymasterInput` starts with `general(bytes)` selector (`0x8c5a3445`)
-2. Ensures transaction targets the `sponsoredContract` (voting contract)
-3. Pays `gasLimit × maxFeePerGas` to the bootloader
-4. Returns `SUCCESS_MAGIC` to approve
 
 ---
 
@@ -203,35 +188,33 @@ forge script script/Deploy.s.sol --broadcast --rpc-url ...
 
 ---
 
-## System contracts used
+## System contracts reference
 
-This example uses `@adi-devtools/contracts/system`:
+This example references `@adi-devtools/contracts/system`:
 
 ```typescript
-import { PAYMASTER_FLOW_ABI } from "@adi-devtools/contracts/system";
+import { PAYMASTER_FLOW_ABI, BOOTLOADER_FORMAL_ADDRESS } from "@adi-devtools/contracts/system";
 // PAYMASTER_FLOW_ABI encodes general() and approvalBased() paymaster inputs
+// BOOTLOADER_FORMAL_ADDRESS = 0x0000...8001 — used in GaslessPaymaster.sol
 ```
 
-The `GaslessPaymaster.sol` validates against the `general(bytes)` selector (`0x8c5a3445`) sourced from `PAYMASTER_FLOW_ABI`. The `getGeneralPaymasterInput()` utility from `viem/zksync` encodes the same value in the frontend.
+The `GaslessPaymaster.sol` validates against the `general(bytes)` selector (`0x8c5a3445`) from `PAYMASTER_FLOW_ABI`. This will be relevant when ADI Chain adds bootloader-level paymaster support.
 
 ---
 
 ## Common errors
 
-### `InsufficientPaymasterBalance`
-The paymaster has run out of ADI. Fund it: `cast send <PAYMASTER_ADDRESS> --value 0.05ether ...`
-
-### `WrongTargetContract`
-The paymaster only sponsors transactions to `sponsoredContract`. Check that `PAYMASTER_ADDRESS` and `VOTING_ADDRESS` match your deployed contracts.
-
 ### `AlreadyVoted`
 Each wallet can vote once per poll. Use a different wallet to test multiple votes.
 
-### MetaMask shows unknown transaction type
-Ensure MetaMask is connected to ADI Testnet (Chain ID 99999). Click "Connect Wallet" — the dApp adds it automatically.
+### MetaMask can't connect
+Ensure MetaMask is installed. Click "Connect Wallet" — the dApp automatically adds ADI Testnet (Chain ID 99999) if it's not in MetaMask yet.
 
 ### `VotingNotActive`
 The poll has been closed by the owner. Deploy a new voting contract to start a new poll.
+
+### Transaction fails with low ADI balance
+ADI testnet fees are sub-cent. Get testnet ADI from: http://faucet.ab.testnet.adifoundation.ai
 
 ---
 
