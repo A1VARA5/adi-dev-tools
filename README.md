@@ -185,7 +185,7 @@ Both files use ethers.js from CDN. No build step, no bundler, no framework.
 
 `@adi-devtools/contracts` ships a `/system` subpath with typed TypeScript exports for every ADI Chain system contract address and ABI.
 
-> ?? **Before using these ABIs, read this:** Most system contracts are bootloader-internal and cannot be called via `eth_call` from outside the chain. Calling them returns `0x` or reverts silently. The table below marks each one clearly. For the majority of dApp use cases (reading balances, block numbers, gas prices) you do **not** need these - use `provider.getBalance()`, `provider.getBlockNumber()`, and `provider.getFeeData()` instead.
+> **Warning:** **Before using these ABIs, read this:** Most system contracts are bootloader-internal and cannot be called via `eth_call` from outside the chain. Calling them returns `0x` or reverts silently. The table below marks each one clearly. For the majority of dApp use cases (reading balances, block numbers, gas prices) you do **not** need these - use `provider.getBalance()`, `provider.getBlockNumber()`, and `provider.getFeeData()` instead.
 >
 > Additionally, **paymaster support (`PAYMASTER_ABI`, `PAYMASTER_FLOW_ABI`) is not active on ADI Chain OS (Airbender).** The bootloader has an `AA_ENABLED` configuration flag for native account abstraction - it is currently disabled on the live deployment. These ABIs are included for when `AA_ENABLED=true` is shipped.
 
@@ -217,13 +217,13 @@ const provider = new ethers.JsonRpcProvider("https://rpc.ab.testnet.adifoundatio
 
 | Contract | Callable externally? | Use case |
 |---|---|---|
-| `BASE_TOKEN_ADDRESS` / `BASE_TOKEN_ABI` | ? `withdraw`, `withdrawWithMessage` | Withdraw ADI from L2 to L1. Note: `balanceOf` takes `uint256`, not `address` - use `provider.getBalance(address)` for normal balance reads |
-| `NONCE_HOLDER_ADDRESS` / `NONCE_HOLDER_ABI` | ? `getMinNonce`, `getRawNonce` | Useful only for custom smart account factories |
-| `SYSTEM_CONTEXT_ADDRESS` / `SYSTEM_CONTEXT_ABI` | ? bootloader-internal | Use in Solidity contracts only. Off-chain: use `provider.getNetwork()`, `provider.getFeeData()`, `provider.getBlockNumber()` |
-| `L1_MESSENGER_ADDRESS` / `L1_MESSENGER_ABI` | ? `sendToL1` | Send L2?L1 messages - ZK-proved in the batch |
-| `CONTRACT_DEPLOYER_ADDRESS` / `CONTRACT_DEPLOYER_ABI` | ? `getNewAddressCreate2`, `getAccountInfo` | Compute CREATE2 addresses before deploying |
-| `PAYMASTER_ABI` | ? future | Interface for paymaster contracts - **bootloader does not invoke paymasters on current ADI Chain OS** |
-| `PAYMASTER_FLOW_ABI` | ? future | Encodes paymaster input selector - only relevant when paymaster support is active |
+| `BASE_TOKEN_ADDRESS` / `BASE_TOKEN_ABI` | Yes - `withdraw`, `withdrawWithMessage` | Withdraw ADI from L2 to L1. Note: `balanceOf` takes `uint256`, not `address` - use `provider.getBalance(address)` for normal balance reads |
+| `NONCE_HOLDER_ADDRESS` / `NONCE_HOLDER_ABI` | Yes - `getMinNonce`, `getRawNonce` | Useful only for custom smart account factories |
+| `SYSTEM_CONTEXT_ADDRESS` / `SYSTEM_CONTEXT_ABI` | No (bootloader-internal) | Use in Solidity contracts only. Off-chain: use `provider.getNetwork()`, `provider.getFeeData()`, `provider.getBlockNumber()` |
+| `L1_MESSENGER_ADDRESS` / `L1_MESSENGER_ABI` | Yes - `sendToL1` | Send L2-to-L1 messages - ZK-proved in the batch |
+| `CONTRACT_DEPLOYER_ADDRESS` / `CONTRACT_DEPLOYER_ABI` | Yes - `getNewAddressCreate2`, `getAccountInfo` | Compute CREATE2 addresses before deploying |
+| `PAYMASTER_ABI` | (future) | Interface for paymaster contracts - **bootloader does not invoke paymasters on current ADI Chain OS** |
+| `PAYMASTER_FLOW_ABI` | (future) | Encodes paymaster input selector - only relevant when paymaster support is active |
 
 ### Gasless transactions (future - not active on current ADI Chain OS)
 
@@ -343,18 +343,20 @@ node packages/create-adi-app/dist/index.js my-test-project
 ```
 adi-dev-tools/
 +-- packages/
-�   +-- sdk/               ? @adi-devtools/sdk
-�   +-- hardhat-plugin/    ? hardhat-adi-network
-�   +-- contracts/         ? @adi-devtools/contracts
-�   +-- create-adi-app/    ? create-adi-app (CLI)
-�       +-- templates/
-�           +-- hardhat/   ? copied into new Hardhat projects
-�           +-- foundry/   ? copied into new Foundry projects
+|   +-- sdk/               (@adi-devtools/sdk)
+|   +-- hardhat-plugin/    (hardhat-adi-network)
+|   +-- contracts/         (@adi-devtools/contracts)
+|   +-- create-adi-app/    (create-adi-app CLI)
+|       +-- templates/
+|           +-- hardhat/   (copied into new Hardhat projects)
+|           +-- foundry/   (copied into new Foundry projects)
 +-- examples/
-�   +-- counter-dapp/          ? Hardhat + Counter + HTML frontend
-�   +-- voting-dapp/           ? Foundry + Voting + HTML frontend
-�   +-- gasless-voting-dapp/   ? Foundry + paymaster reference contract + HTML frontend
-+-- docker/                ? Local ADI node (Linux only)
+|   +-- counter-dapp/          (Hardhat + Counter + HTML frontend)
+|   +-- voting-dapp/           (Foundry + Voting + HTML frontend)
+|   +-- gasless-voting-dapp/   (Foundry + paymaster reference contract + HTML frontend)
+|   +-- nft-mint/              (Foundry + ERC-721 + HTML frontend)
+|   +-- simple-dao/            (Foundry + DAO + HTML frontend)
+|   +-- token-faucet/          (Foundry + Faucet + HTML frontend)
 +-- pnpm-workspace.yaml
 +-- package.json
 ```

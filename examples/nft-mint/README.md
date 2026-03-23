@@ -1,12 +1,12 @@
-# nft-mint — ADI Chain Example
+﻿# nft-mint - ADI Chain Example
 
-A minimal NFT collection example on ADI Chain Testnet. Deploy an ERC-721 contract and mint/browse tokens through a single-file HTML frontend — no build step required.
+A minimal NFT collection example on ADI Chain Testnet. Deploy an ERC-721 contract and mint/browse tokens through a single-file HTML frontend - no build step required.
 
 ## What's included
 
 | File | Purpose |
 |---|---|
-| `src/NFT.sol` | ERC-721 contract — configurable supply, price, metadata |
+| `src/NFT.sol` | ERC-721 contract - configurable supply, price, metadata |
 | `script/NFT.s.sol` | Foundry deploy script |
 | `frontend/index.html` | Mint + gallery UI (ethers@6 CDN) |
 
@@ -14,7 +14,7 @@ A minimal NFT collection example on ADI Chain Testnet. Deploy an ERC-721 contrac
 
 - [Foundry](https://book.getfoundry.sh/getting-started/installation) installed
 - MetaMask with ADI Testnet (the frontend will prompt you to add it)
-- A funded testnet wallet — get ADI from the [faucet](https://faucet.adifoundation.ai)
+- A funded testnet wallet - get ADI from the [faucet](https://faucet.adifoundation.ai)
 
 ## Deploy the contract
 
@@ -69,9 +69,9 @@ To customise, edit the constructor arguments in `script/NFT.s.sol`.
 
 Connect with the deployer wallet to unlock the owner panel:
 
-- **Toggle minting** — open or close the mint window
-- **Set mint price** — charge ADI per token
-- **Withdraw** — pull contract balance to owner address
+- **Toggle minting** - open or close the mint window
+- **Set mint price** - charge ADI per token
+- **Withdraw** - pull contract balance to owner address
 
 ## Network info
 

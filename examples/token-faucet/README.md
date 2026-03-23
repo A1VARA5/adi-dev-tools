@@ -1,12 +1,12 @@
-# token-faucet — ADI Chain Example
+﻿# token-faucet - ADI Chain Example
 
-A testnet ADI faucet — deploy the contract, fund it, and let developers claim free ADI tokens through a polished single-file HTML frontend. No build step required.
+A testnet ADI faucet - deploy the contract, fund it, and let developers claim free ADI tokens through a polished single-file HTML frontend. No build step required.
 
 ## What's included
 
 | File | Purpose |
 |---|---|
-| `src/Faucet.sol` | Faucet contract — drip + cooldown + owner controls |
+| `src/Faucet.sol` | Faucet contract - drip + cooldown + owner controls |
 | `script/Faucet.s.sol` | Foundry deploy script |
 | `frontend/index.html` | Claim UI with cooldown timer + recent claims history |
 
@@ -68,10 +68,10 @@ Open [http://localhost:8084](http://localhost:8084) in your browser.
 
 Connect with the deployer wallet to unlock the owner panel:
 
-- **Set Drip Amount** — change how much ADI per claim
-- **Set Cooldown** — change the wait time between claims
-- **Fund (1 ADI)** — top up the faucet from the UI
-- **Withdraw All** — drain remaining ADI back to owner
+- **Set Drip Amount** - change how much ADI per claim
+- **Set Cooldown** - change the wait time between claims
+- **Fund (1 ADI)** - top up the faucet from the UI
+- **Withdraw All** - drain remaining ADI back to owner
 
 ## Network info
 

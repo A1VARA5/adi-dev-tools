@@ -1,4 +1,4 @@
-# ADI Chain Voting dApp
+﻿# ADI Chain Voting dApp
 
 A production-ready on-chain voting example built on ADI Chain.
 
@@ -10,7 +10,7 @@ A production-ready on-chain voting example built on ADI Chain.
 - Auto-adding ADI Testnet to MetaMask via `wallet_addEthereumChain`
 - Live vote count progress bars + winner detection
 
-ZK proofs happen automatically — Airbender proves every batch and posts it to Ethereum L1. You don't write any ZK code.
+ZK proofs happen automatically - Airbender proves every batch and posts it to Ethereum L1. You don't write any ZK code.
 
 ## Quick start
 

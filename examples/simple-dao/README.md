@@ -1,12 +1,12 @@
-# simple-dao — ADI Chain Example
+﻿# simple-dao - ADI Chain Example
 
-A minimal DAO with on-chain governance and treasury on ADI Chain Testnet. Members submit proposals, vote by wallet, and execute passing proposals to release funds — all from a single-file HTML frontend.
+A minimal DAO with on-chain governance and treasury on ADI Chain Testnet. Members submit proposals, vote by wallet, and execute passing proposals to release funds - all from a single-file HTML frontend.
 
 ## What's included
 
 | File | Purpose |
 |---|---|
-| `src/DAO.sol` | DAO contract — membership, proposals, voting, treasury |
+| `src/DAO.sol` | DAO contract - membership, proposals, voting, treasury |
 | `script/DAO.s.sol` | Foundry deploy script |
 | `frontend/index.html` | Proposals + voting UI (ethers@6 CDN) |
 
@@ -14,7 +14,7 @@ A minimal DAO with on-chain governance and treasury on ADI Chain Testnet. Member
 
 - [Foundry](https://book.getfoundry.sh/getting-started/installation) installed
 - MetaMask with ADI Testnet (the frontend will prompt you to add it)
-- A funded testnet wallet — get ADI from the [faucet](https://faucet.adifoundation.ai)
+- A funded testnet wallet - get ADI from the [faucet](https://faucet.adifoundation.ai)
 
 ## Deploy the contract
 
@@ -73,11 +73,11 @@ To customise, edit the constructor arguments in `script/DAO.s.sol`.
 
 ## Governance flow
 
-1. **Join** — any wallet can call `join()` to become a member
-2. **Propose** — members submit proposals (description + optional treasury release amount)
-3. **Vote** — one vote per member per proposal (`FOR` or `AGAINST`), during the voting window
-4. **Finalize** — anyone calls `finalize()` after the deadline to record the outcome
-5. **Execute** — anyone calls `execute()` on a passed proposal to release treasury funds
+1. **Join** - any wallet can call `join()` to become a member
+2. **Propose** - members submit proposals (description + optional treasury release amount)
+3. **Vote** - one vote per member per proposal (`FOR` or `AGAINST`), during the voting window
+4. **Finalize** - anyone calls `finalize()` after the deadline to record the outcome
+5. **Execute** - anyone calls `execute()` on a passed proposal to release treasury funds
 
 ## Network info
 

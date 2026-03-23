@@ -1,8 +1,8 @@
-# Voting dApp — ADI Chain
+﻿# Voting dApp - ADI Chain
 
 A production-ready on-chain voting dApp built on ADI Chain. Wallets connect via MetaMask, cast votes, and results are stored permanently on-chain and proved by ADI's ZK rollup.
 
-> **Gas note:** ADI Chain fees are extremely cheap (sub-cent). While this example deploys a `GaslessPaymaster` contract for reference, **ADI Chain OS (Airbender) uses standard EVM transaction types** — ZKSync native AA type-113 transactions are not supported on this stack. Votes are sent as regular EIP-1559 transactions. The `GaslessPaymaster.sol` contract is included as an educational reference for when paymaster support is added in a future protocol version.
+> **Gas note:** ADI Chain fees are extremely cheap (sub-cent). While this example deploys a `GaslessPaymaster` contract for reference, **ADI Chain OS (Airbender) uses standard EVM transaction types** - ZKSync native AA type-113 transactions are not supported on this stack. Votes are sent as regular EIP-1559 transactions. The `GaslessPaymaster.sol` contract is included as an educational reference for when paymaster support is added in a future protocol version.
 
 ---
 
@@ -34,7 +34,7 @@ proof posted and verified on Ethereum L1
 | Layer | Tech |
 |---|---|
 | Smart contracts | Solidity 0.8.24, Foundry |
-| Frontend | Single HTML file — ethers.js v6 (CDN, no build step) |
+| Frontend | Single HTML file - ethers.js v6 (CDN, no build step) |
 | Network | ADI Chain testnet (Chain ID 99999) |
 
 ---
@@ -63,7 +63,7 @@ forge install foundry-rs/forge-std
 
 ```bash
 cp .env.example .env
-# Edit .env — set TESTNET_PRIVATE_KEY to a funded wallet
+# Edit .env - set TESTNET_PRIVATE_KEY to a funded wallet
 ```
 
 **Windows PowerShell:**
@@ -89,7 +89,7 @@ forge script script/Deploy.s.sol `
 The deploy script:
 1. Deploys `ADIVoting.sol` with 3 default proposals
 2. Deploys `GaslessPaymaster.sol` pointing at the voting contract
-3. Funds the paymaster with **0.05 ADI** — enough to sponsor ~50,000 gas operations
+3. Funds the paymaster with **0.05 ADI** - enough to sponsor ~50,000 gas operations
 
 Output:
 ```
@@ -123,7 +123,7 @@ npx serve frontend
 # Open http://localhost:3000
 ```
 
-> Must be HTTP, not `file://` — MetaMask doesn't inject into file:// URLs.
+> Must be HTTP, not `file://` - MetaMask doesn't inject into file:// URLs.
 
 ---
 
@@ -143,7 +143,7 @@ function closeVoting() external onlyOwner
 
 ### `GaslessPaymaster.sol` (reference only)
 
-A ZKsync-style native paymaster contract. Implements `IPaymaster` — on chains where the bootloader invokes it before every transaction, this contract pays gas on behalf of users.
+A ZKsync-style native paymaster contract. Implements `IPaymaster` - on chains where the bootloader invokes it before every transaction, this contract pays gas on behalf of users.
 
 > **ADI Chain OS (Airbender) does not call paymasters today.** This contract is deployed and included as a reference implementation for a future protocol upgrade. It compiles and deploys normally.
 
@@ -195,7 +195,7 @@ This example references `@adi-devtools/contracts/system`:
 ```typescript
 import { PAYMASTER_FLOW_ABI, BOOTLOADER_FORMAL_ADDRESS } from "@adi-devtools/contracts/system";
 // PAYMASTER_FLOW_ABI encodes general() and approvalBased() paymaster inputs
-// BOOTLOADER_FORMAL_ADDRESS = 0x0000...8001 — used in GaslessPaymaster.sol
+// BOOTLOADER_FORMAL_ADDRESS = 0x0000...8001 - used in GaslessPaymaster.sol
 ```
 
 The `GaslessPaymaster.sol` validates against the `general(bytes)` selector (`0x8c5a3445`) from `PAYMASTER_FLOW_ABI`. This will be relevant when ADI Chain adds bootloader-level paymaster support.
@@ -208,7 +208,7 @@ The `GaslessPaymaster.sol` validates against the `general(bytes)` selector (`0x8
 Each wallet can vote once per poll. Use a different wallet to test multiple votes.
 
 ### MetaMask can't connect
-Ensure MetaMask is installed. Click "Connect Wallet" — the dApp automatically adds ADI Testnet (Chain ID 99999) if it's not in MetaMask yet.
+Ensure MetaMask is installed. Click "Connect Wallet" - the dApp automatically adds ADI Testnet (Chain ID 99999) if it's not in MetaMask yet.
 
 ### `VotingNotActive`
 The poll has been closed by the owner. Deploy a new voting contract to start a new poll.
