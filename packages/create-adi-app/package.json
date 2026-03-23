@@ -1,0 +1,33 @@
+{
+  "name": "create-adi-app",
+  "version": "0.1.0",
+  "description": "CLI scaffold tool — create a fully configured ADI Chain dApp in one command",
+  "main": "dist/index.js",
+  "bin": {
+    "create-adi-app": "./dist/index.js"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf dist",
+    "lint": "tsc --noEmit",
+    "dev": "ts-node src/index.ts"
+  },
+  "keywords": ["adi", "adi-chain", "create-app", "scaffold", "cli", "zkrollup"],
+  "license": "MIT",
+  "dependencies": {
+    "@adi-foundation/sdk": "workspace:*",
+    "commander": "^12.0.0",
+    "prompts": "^2.4.2",
+    "fs-extra": "^11.2.0",
+    "picocolors": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.0",
+    "@types/node": "^20.0.0",
+    "@types/prompts": "^2.4.9",
+    "rimraf": "^5.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.4.0"
+  }
+}

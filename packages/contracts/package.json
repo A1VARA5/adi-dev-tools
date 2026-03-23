@@ -1,0 +1,13 @@
+{
+  "name": "@adi-foundation/contracts",
+  "version": "0.1.0",
+  "description": "Solidity contract templates for building on ADI Chain",
+  "files": ["src"],
+  "scripts": {
+    "build": "forge build",
+    "test": "forge test",
+    "clean": "forge clean"
+  },
+  "keywords": ["adi", "adi-chain", "solidity", "smart-contracts", "erc20", "erc721", "voting"],
+  "license": "MIT"
+}

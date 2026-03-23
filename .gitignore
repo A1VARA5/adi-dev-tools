@@ -1,0 +1,56 @@
+# ── ADI Dev Tools — .gitignore ────────────────────────────────────────────────
+
+# Claude / AI tooling — never publish rules, skills, or session state
+.claude/
+
+# Playwright MCP session files
+.playwright-mcp/
+
+# Environment variables — never commit private keys
+.env
+.env.local
+.env.*.local
+
+# ── Node.js ───────────────────────────────────────────────────────────────────
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+.npm/
+.pnpm-store/
+pnpm-lock.yaml
+package-lock.json
+
+# ── Foundry ───────────────────────────────────────────────────────────────────
+out/
+cache/
+broadcast/*/31337/
+broadcast/*/99999/run-latest.json
+broadcast/*/36900/run-latest.json
+
+# Keep broadcast history for testnet/mainnet so deploys are trackable,
+# but ignore local (chain 31337) broadcasts and run-latest files:
+!broadcast/
+!broadcast/**
+
+# ── Hardhat ───────────────────────────────────────────────────────────────────
+artifacts/
+cache/
+typechain-types/
+deployments/localhost/
+ignition/deployments/chain-31337/
+
+# ── TypeScript ─────────────────────────────────────────────────────────────────
+*.js.map
+*.d.ts.map
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editors ───────────────────────────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+*.swp
+*.swo

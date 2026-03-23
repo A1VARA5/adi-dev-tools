@@ -1,0 +1,10 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.24"
+optimizer = true
+
+[rpc_endpoints]
+adi_testnet = "https://rpc.ab.testnet.adifoundation.ai"
+adi_mainnet = "https://rpc.adifoundation.ai"

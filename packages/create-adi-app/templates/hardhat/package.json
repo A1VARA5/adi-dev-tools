@@ -1,0 +1,17 @@
+{
+  "name": "my-adi-dapp",
+  "version": "1.0.0",
+  "description": "ADI Chain dApp built with Hardhat",
+  "type": "module",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:testnet": "hardhat ignition deploy ignition/modules/Counter.ts --network adi-testnet",
+    "deploy:mainnet": "hardhat ignition deploy ignition/modules/Counter.ts --network adi-mainnet"
+  },
+  "devDependencies": {
+    "hardhat": "^3.0.0",
+    "hardhat-adi-network": "^0.1.0",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0"
+  }
+}

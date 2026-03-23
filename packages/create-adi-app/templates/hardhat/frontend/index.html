@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ADI Chain dApp</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; }
+    .card { background: #1e2130; border: 1px solid #2d3248; border-radius: 16px; padding: 2rem; max-width: 480px; width: 100%; }
+    h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .badge { display: inline-block; background: #4f46e5; color: white; font-size: 0.7rem; padding: 2px 8px; border-radius: 999px; margin-bottom: 1.5rem; }
+    label { display: block; margin-bottom: 0.4rem; font-size: 0.85rem; color: #94a3b8; }
+    input { width: 100%; background: #0f1117; border: 1px solid #2d3248; color: #e2e8f0; border-radius: 8px; padding: 0.6rem 0.9rem; font-size: 0.95rem; margin-bottom: 1rem; }
+    button { width: 100%; padding: 0.7rem; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; border: none; transition: opacity 0.2s; }
+    button:hover { opacity: 0.85; }
+    .btn-primary { background: #4f46e5; color: white; }
+    .btn-secondary { background: #2d3248; color: #e2e8f0; margin-top: 0.5rem; }
+    #status { margin-top: 1rem; padding: 0.75rem; border-radius: 8px; font-size: 0.85rem; display: none; }
+    .status-ok { background: #052e16; color: #4ade80; border: 1px solid #166534; }
+    .status-err { background: #450a0a; color: #f87171; border: 1px solid #7f1d1d; }
+    .meta { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #2d3248; font-size: 0.78rem; color: #64748b; }
+    .meta a { color: #818cf8; text-decoration: none; }
+    #wallet { margin-bottom: 1rem; padding: 0.6rem 0.9rem; background: #0f1117; border: 1px solid #2d3248; border-radius: 8px; font-size: 0.8rem; color: #64748b; font-family: monospace; word-break: break-all; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>ADI Chain Counter dApp</h1>
+    <div class="badge">ADI Testnet — Chain ID 99999</div>
+
+    <div id="wallet">Not connected</div>
+    <button class="btn-primary" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+
+    <div style="margin-top:1.5rem">
+      <label for="numberInput">Set Number</label>
+      <input type="number" id="numberInput" placeholder="Enter a number" min="0" />
+      <button class="btn-primary" onclick="setNumber()">Set Number</button>
+      <button class="btn-secondary" onclick="increment()">Increment</button>
+      <button class="btn-secondary" onclick="readNumber()">Read Current Number</button>
+    </div>
+
+    <div id="status"></div>
+
+    <div class="meta">
+      Contract address: <code id="contractAddr">—</code><br/>
+      <a href="https://explorer.ab.testnet.adifoundation.ai" target="_blank">Open Explorer →</a> ·
+      <a href="http://faucet.ab.testnet.adifoundation.ai" target="_blank">Get Testnet ADI →</a>
+    </div>
+  </div>
+
+  <!-- ethers.js v6 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+  <script>
+    // ─── CONFIG — update CONTRACT_ADDRESS after deployment ────────────────────
+    const CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"; // ← paste your address
+    const CONTRACT_ABI = [
+      "function number() view returns (uint256)",
+      "function setNumber(uint256 newNumber)",
+      "function increment()",
+      "event NumberSet(uint256 newNumber)",
+      "event Incremented(uint256 newNumber)",
+    ];
+
+    const ADI_TESTNET = {
+      chainId: "0x1869F",
+      chainName: "ADI Network AB Testnet",
+      rpcUrls: ["https://rpc.ab.testnet.adifoundation.ai"],
+      nativeCurrency: { name: "ADI", symbol: "ADI", decimals: 18 },
+      blockExplorerUrls: ["https://explorer.ab.testnet.adifoundation.ai"],
+    };
+
+    // ─── State ────────────────────────────────────────────────────────────────
+    let provider, signer, contract;
+
+    function showStatus(msg, isError = false) {
+      const el = document.getElementById("status");
+      el.textContent = msg;
+      el.className = isError ? "status-err" : "status-ok";
+      el.style.display = "block";
+    }
+
+    // ─── Wallet connection ────────────────────────────────────────────────────
+    async function connectWallet() {
+      if (!window.ethereum) return showStatus("MetaMask not detected.", true);
+      try {
+        // Switch to / add ADI testnet
+        try {
+          await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: ADI_TESTNET.chainId }] });
+        } catch (e) {
+          if (e.code === 4902) await window.ethereum.request({ method: "wallet_addEthereumChain", params: [ADI_TESTNET] });
+          else throw e;
+        }
+        provider = new ethers.BrowserProvider(window.ethereum);
+        signer = await provider.getSigner();
+        const address = await signer.getAddress();
+        document.getElementById("wallet").textContent = address;
+        document.getElementById("contractAddr").textContent = CONTRACT_ADDRESS;
+        contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+        showStatus("Wallet connected: " + address);
+      } catch (err) {
+        showStatus("Connection failed: " + err.message, true);
+      }
+    }
+
+    // ─── Contract interactions ────────────────────────────────────────────────
+    async function readNumber() {
+      if (!contract) return showStatus("Connect wallet first.", true);
+      try {
+        const n = await contract.number();
+        showStatus("Current number: " + n.toString());
+      } catch (err) {
+        showStatus("Read failed: " + err.message, true);
+      }
+    }
+
+    async function setNumber() {
+      if (!contract) return showStatus("Connect wallet first.", true);
+      const val = document.getElementById("numberInput").value;
+      if (!val) return showStatus("Enter a number first.", true);
+      try {
+        showStatus("Sending transaction...");
+        const tx = await contract.setNumber(BigInt(val));
+        await tx.wait();
+        showStatus("Number set to " + val + " ✔  Tx: " + tx.hash);
+      } catch (err) {
+        showStatus("Transaction failed: " + err.message, true);
+      }
+    }
+
+    async function increment() {
+      if (!contract) return showStatus("Connect wallet first.", true);
+      try {
+        showStatus("Sending transaction...");
+        const tx = await contract.increment();
+        await tx.wait();
+        const n = await contract.number();
+        showStatus("Incremented! New value: " + n.toString() + "  Tx: " + tx.hash);
+      } catch (err) {
+        showStatus("Transaction failed: " + err.message, true);
+      }
+    }
+
+    // Auto-connect if already authorized
+    window.addEventListener("load", async () => {
+      if (window.ethereum?.selectedAddress) connectWallet();
+    });
+  </script>
+</body>
+</html>
