@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -137,7 +137,7 @@
     <div>
       <div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:0.2rem;">Your Wallet</div>
       <div class="wallet-addr" id="walletAddr">Not connected</div>
-      <div class="wallet-balance" id="walletBalance" style="margin-top:0.2rem;color:var(--muted);">— ADI</div>
+      <div class="wallet-balance" id="walletBalance" style="margin-top:0.2rem;color:var(--muted);">- ADI</div>
     </div>
     <div style="display:flex;align-items:center;gap:0.5rem;">
       <span class="chain-badge">ADI Testnet</span>
@@ -148,15 +148,15 @@
   <!-- Faucet stats -->
   <div class="stats-row">
     <div class="stat-box">
-      <div class="stat-value" id="statBalance">—</div>
+      <div class="stat-value" id="statBalance">-</div>
       <div class="stat-label">Faucet Balance (ADI)</div>
     </div>
     <div class="stat-box">
-      <div class="stat-value" id="statDrip">—</div>
+      <div class="stat-value" id="statDrip">-</div>
       <div class="stat-label">Per Claim (ADI)</div>
     </div>
     <div class="stat-box">
-      <div class="stat-value" id="statCooldown">—</div>
+      <div class="stat-value" id="statCooldown">-</div>
       <div class="stat-label">Cooldown</div>
     </div>
   </div>
@@ -385,7 +385,7 @@ async function claim() {
   btn.innerHTML = '<span class="spinner"></span> Sending...';
   try {
     const tx = await contract.drip();
-    toast("Transaction sent — waiting for confirmation...", "info");
+    toast("Transaction sent - waiting for confirmation...", "info");
     const receipt = await tx.wait();
     toast("ADI claimed! ✔ Block: " + receipt.blockNumber, "ok");
     await Promise.all([loadFaucetInfo(), loadWalletBalance(), loadHistory()]);
@@ -419,7 +419,7 @@ async function loadHistory() {
     const logs = await rc.queryFilter(filter, -2000);  // last ~2000 blocks
 
     if (logs.length === 0) {
-      list.innerHTML = '<li class="history-empty">No claims yet — be the first!</li>';
+      list.innerHTML = '<li class="history-empty">No claims yet - be the first!</li>';
       return;
     }
 

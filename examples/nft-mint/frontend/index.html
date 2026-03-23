@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -117,7 +117,7 @@
   <div class="header">
     <div class="adi-logo"><span class="adi-dot"></span> ADI Chain Testnet</div>
     <h1 id="collectionName">NFT Collection</h1>
-    <p class="subtitle">Mint and collect NFTs on ADI Chain — low fees, instant confirmation</p>
+    <p class="subtitle">Mint and collect NFTs on ADI Chain - low fees, instant confirmation</p>
   </div>
 
   <!-- Wallet -->
@@ -133,15 +133,15 @@
   <!-- Collection stats -->
   <div class="stats-grid">
     <div class="stat-box">
-      <div class="stat-value" id="statMinted">—</div>
+      <div class="stat-value" id="statMinted">-</div>
       <div class="stat-label">Minted</div>
     </div>
     <div class="stat-box">
-      <div class="stat-value" id="statMax">—</div>
+      <div class="stat-value" id="statMax">-</div>
       <div class="stat-label">Max Supply</div>
     </div>
     <div class="stat-box">
-      <div class="stat-value" id="statOwned">—</div>
+      <div class="stat-value" id="statOwned">-</div>
       <div class="stat-label">You Own</div>
     </div>
   </div>
@@ -267,7 +267,7 @@ async function loadCollectionInfo() {
 
     const isFree = price === 0n;
     document.getElementById("mintPriceInfo").textContent = isFree
-      ? "Free mint — no ADI required"
+      ? "Free mint - no ADI required"
       : `Mint price: ${formatEther(price)} ADI`;
 
     const soldOut = Number(minted) >= Number(max);
@@ -289,7 +289,7 @@ async function loadCollectionInfo() {
       const owned = await rc.balanceOf(currentAddress);
       document.getElementById("statOwned").textContent = Number(owned);
     } else {
-      document.getElementById("statOwned").textContent = "—";
+      document.getElementById("statOwned").textContent = "-";
     }
   } catch (err) {
     document.getElementById("mintPriceInfo").textContent = "Could not load collection info.";
@@ -304,7 +304,7 @@ async function mintToken() {
     const price = await contract.mintPrice();
     toast("Sending mint transaction...", "info");
     const tx = await contract.mint({ value: price });
-    toast("Transaction sent — waiting for confirmation...", "info");
+    toast("Transaction sent - waiting for confirmation...", "info");
     const receipt = await tx.wait();
     toast("NFT minted! ✔ Block: " + receipt.blockNumber, "ok");
     await loadCollectionInfo();

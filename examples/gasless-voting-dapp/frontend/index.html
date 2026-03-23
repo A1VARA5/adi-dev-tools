@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gasless Voting — ADI Chain</title>
+  <title>Gasless Voting - ADI Chain</title>
   <style>
     :root {
       --bg: #0d0f14;
@@ -368,7 +368,7 @@
     <div class="toast-title" id="toast-title"></div>
     <div class="toast-sub" id="toast-sub"></div>
   </div>
-  <button class="toast-close" onclick="hideToast()">×</button>
+  <button class="toast-close" onclick="hideToast()">�-</button>
 </div>
 
 <!-- ── Config banner ────────────────────────────────────────────────────── -->
@@ -381,7 +381,7 @@
 <header>
   <div class="header-top">
     <div class="logo">
-      <div class="logo-icon">🗳️</div>
+      <div class="logo-icon">�-�️</div>
       <span class="logo-text">Gasless Voting</span>
     </div>
     <span class="gasless-badge">⚡ 0 GAS FOR VOTERS</span>
@@ -400,11 +400,11 @@
     </div>
     <div class="info-card">
       <div class="info-label">Block</div>
-      <div class="info-value" id="block-number">—</div>
+      <div class="info-value" id="block-number">-</div>
     </div>
     <div class="info-card">
       <div class="info-label">Total Votes</div>
-      <div class="info-value green" id="total-votes">—</div>
+      <div class="info-value green" id="total-votes">-</div>
     </div>
   </div>
 
@@ -428,11 +428,11 @@
       <div class="pm-icon">⛽</div>
       <div>
         <div class="pm-title">Gas Paymaster</div>
-        <div class="pm-sub">Sponsors gas for all votes — users pay nothing</div>
+        <div class="pm-sub">Sponsors gas for all votes - users pay nothing</div>
       </div>
     </div>
     <div class="pm-balance">
-      <div class="pm-balance-num" id="pm-balance-num">—</div>
+      <div class="pm-balance-num" id="pm-balance-num">-</div>
       <div class="pm-balance-label">ADI available</div>
     </div>
   </div>
@@ -497,7 +497,7 @@
 
 <!-- ── Script ────────────────────────────────────────────────────────────── -->
 <script type="module">
-// ── Imports (ethers@6 — browser-native) ─────────────────────────────────────────
+// ── Imports (ethers@6 - browser-native) ─────────────────────────────────────────
 import { BrowserProvider, Contract, JsonRpcProvider, formatEther } from 'https://esm.sh/ethers@6?bundle';
 
 // ── Contract addresses ────────────────────────────────────────────────────────

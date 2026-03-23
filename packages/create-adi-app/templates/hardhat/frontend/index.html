@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -27,7 +27,7 @@
 <body>
   <div class="card">
     <h1>ADI Chain Counter dApp</h1>
-    <div class="badge">ADI Testnet — Chain ID 99999</div>
+    <div class="badge">ADI Testnet - Chain ID 99999</div>
 
     <div id="wallet">Not connected</div>
     <button class="btn-primary" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
@@ -43,7 +43,7 @@
     <div id="status"></div>
 
     <div class="meta">
-      Contract address: <code id="contractAddr">—</code><br/>
+      Contract address: <code id="contractAddr">-</code><br/>
       <a href="https://explorer.ab.testnet.adifoundation.ai" target="_blank">Open Explorer →</a> ·
       <a href="http://faucet.ab.testnet.adifoundation.ai" target="_blank">Get Testnet ADI →</a>
     </div>
@@ -52,7 +52,7 @@
   <!-- ethers.js v6 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
   <script>
-    // ─── CONFIG — update CONTRACT_ADDRESS after deployment ────────────────────
+    // ─── CONFIG - update CONTRACT_ADDRESS after deployment ────────────────────
     const CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"; // ← paste your address
     const CONTRACT_ABI = [
       "function number() view returns (uint256)",

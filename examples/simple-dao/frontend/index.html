@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -130,7 +130,7 @@
   <div class="header">
     <div class="adi-logo"><span class="adi-dot"></span> ADI Chain Testnet</div>
     <h1 id="daoName">Community DAO</h1>
-    <p class="subtitle">On-chain governance with treasury — proposals, voting, execution</p>
+    <p class="subtitle">On-chain governance with treasury - proposals, voting, execution</p>
   </div>
 
   <!-- Wallet -->
@@ -150,15 +150,15 @@
   <!-- Stats -->
   <div class="stats-grid">
     <div class="stat-box">
-      <div class="stat-value" id="statProposals">—</div>
+      <div class="stat-value" id="statProposals">-</div>
       <div class="stat-label">Proposals</div>
     </div>
     <div class="stat-box">
-      <div class="stat-value" id="statMembers">—</div>
+      <div class="stat-value" id="statMembers">-</div>
       <div class="stat-label">Members</div>
     </div>
     <div class="stat-box">
-      <div class="stat-value" id="statTreasury">—</div>
+      <div class="stat-value" id="statTreasury">-</div>
       <div class="stat-label">Treasury (ADI)</div>
     </div>
   </div>
@@ -379,7 +379,7 @@ async function loadProposals() {
       el.innerHTML = `
         <div class="proposal-top">
           <div>
-            <div class="proposal-desc">#${p.id} — ${escapeHtml(p.description)}</div>
+            <div class="proposal-desc">#${p.id} - ${escapeHtml(p.description)}</div>
             <div class="proposal-meta">
               By ${shortAddr(p.proposer)}
               ${valueStr ? ` · 💰 ${valueStr}` : ""}
@@ -508,7 +508,7 @@ async function refreshAll() {
 }
 
 function shortAddr(addr) {
-  if (!addr || addr === ZeroAddress) return "—";
+  if (!addr || addr === ZeroAddress) return "-";
   return addr.slice(0, 6) + "..." + addr.slice(-4);
 }
 

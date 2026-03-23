@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -207,7 +207,7 @@
     </div>
 
     <div class="card-footer">
-      <span class="total-votes" id="totalVotes">— total votes</span>
+      <span class="total-votes" id="totalVotes">- total votes</span>
       <div class="footer-actions">
         <button class="btn btn-outline btn-sm" onclick="loadProposals()">↻ Refresh</button>
         <button class="btn btn-danger btn-sm" id="closeBtn" onclick="closeVoting()" style="display:none">Close Voting</button>
@@ -217,10 +217,10 @@
 
   <!-- Links -->
   <div class="links">
-    <a href="https://explorer.ab.testnet.adifoundation.ai" target="_blank">Block Explorer ↗</a>
-    <a href="http://faucet.ab.testnet.adifoundation.ai" target="_blank">Testnet Faucet ↗</a>
-    <a href="https://bridge.ab.testnet.adifoundation.ai" target="_blank">Bridge ↗</a>
-    <a href="https://docs.adi.foundation" target="_blank">ADI Docs ↗</a>
+    <a href="https://explorer.ab.testnet.adifoundation.ai" target="_blank">Block Explorer �-</a>
+    <a href="http://faucet.ab.testnet.adifoundation.ai" target="_blank">Testnet Faucet �-</a>
+    <a href="https://bridge.ab.testnet.adifoundation.ai" target="_blank">Bridge �-</a>
+    <a href="https://docs.adi.foundation" target="_blank">ADI Docs �-</a>
   </div>
 </div>
 
@@ -230,7 +230,7 @@
 <!-- ethers.js v6 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 <script>
-// ─── CONFIG — paste your deployed contract address here ─────────────────────
+// ─── CONFIG - paste your deployed contract address here ─────────────────────
 const CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"; // ← paste your deployed address
 
 const CONTRACT_ABI = [
@@ -396,7 +396,7 @@ async function castVote(proposalIndex) {
   try {
     toast("Sending vote transaction...", "info");
     const tx = await contract.vote(proposalIndex);
-    toast("Transaction sent — waiting for confirmation...", "info");
+    toast("Transaction sent - waiting for confirmation...", "info");
     await tx.wait();
     toast("Vote cast successfully! ✔", "ok");
     await loadProposals();
