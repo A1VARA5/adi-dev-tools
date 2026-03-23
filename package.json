@@ -12,5 +12,13 @@
   },
   "devDependencies": {
     "typescript": "^5.4.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/A1VARA5/ADI-SDK-TOOLS-FOR-DEVS"
+  },
+  "homepage": "https://github.com/A1VARA5/ADI-SDK-TOOLS-FOR-DEVS#readme",
+  "bugs": {
+    "url": "https://github.com/A1VARA5/ADI-SDK-TOOLS-FOR-DEVS/issues"
   }
 }

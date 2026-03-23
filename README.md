@@ -73,5 +73,6 @@ Every dApp on ADI Chain is automatically a ZK dApp. You deploy standard Solidity
 ## Links
 
 - Docs: https://docs.adi.foundation
+- This repo: https://github.com/A1VARA5/ADI-SDK-TOOLS-FOR-DEVS
 - GitHub org: https://github.com/ADI-Foundation-Labs
 - Testnet quickstart: https://docs.adi.foundation/how-to-start/adi-network-testnet-quickstart

@@ -12,6 +12,15 @@
   },
   "keywords": ["hardhat", "hardhat-plugin", "adi", "adi-chain", "adi-foundation"],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/A1VARA5/ADI-SDK-TOOLS-FOR-DEVS",
+    "directory": "packages/hardhat-plugin"
+  },
+  "homepage": "https://github.com/A1VARA5/ADI-SDK-TOOLS-FOR-DEVS/tree/main/packages/hardhat-plugin#readme",
+  "bugs": {
+    "url": "https://github.com/A1VARA5/ADI-SDK-TOOLS-FOR-DEVS/issues"
+  },
   "dependencies": {
     "@adi-foundation/sdk": "workspace:*"
   },

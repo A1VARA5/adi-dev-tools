@@ -12,6 +12,15 @@
   },
   "keywords": ["adi", "adi-chain", "adi-foundation", "zkrollup", "evm", "blockchain"],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/A1VARA5/ADI-SDK-TOOLS-FOR-DEVS",
+    "directory": "packages/sdk"
+  },
+  "homepage": "https://github.com/A1VARA5/ADI-SDK-TOOLS-FOR-DEVS/tree/main/packages/sdk#readme",
+  "bugs": {
+    "url": "https://github.com/A1VARA5/ADI-SDK-TOOLS-FOR-DEVS/issues"
+  },
   "dependencies": {
     "ethers": "^6.11.0"
   },

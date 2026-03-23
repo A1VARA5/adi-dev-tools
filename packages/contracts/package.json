@@ -9,5 +9,14 @@
     "clean": "forge clean"
   },
   "keywords": ["adi", "adi-chain", "solidity", "smart-contracts", "erc20", "erc721", "voting"],
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/A1VARA5/ADI-SDK-TOOLS-FOR-DEVS",
+    "directory": "packages/contracts"
+  },
+  "homepage": "https://github.com/A1VARA5/ADI-SDK-TOOLS-FOR-DEVS/tree/main/packages/contracts#readme",
+  "bugs": {
+    "url": "https://github.com/A1VARA5/ADI-SDK-TOOLS-FOR-DEVS/issues"
+  }
 }
