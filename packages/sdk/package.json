@@ -14,12 +14,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/A1VARA5/ADI-SDK-TOOLS-FOR-DEVS",
+    "url": "https://github.com/A1VARA5/adi-dev-tools",
     "directory": "packages/sdk"
   },
-  "homepage": "https://github.com/A1VARA5/ADI-SDK-TOOLS-FOR-DEVS/tree/main/packages/sdk#readme",
+  "homepage": "https://github.com/A1VARA5/adi-dev-tools/tree/main/packages/sdk#readme",
   "bugs": {
-    "url": "https://github.com/A1VARA5/ADI-SDK-TOOLS-FOR-DEVS/issues"
+    "url": "https://github.com/A1VARA5/adi-dev-tools/issues"
   },
   "dependencies": {
     "ethers": "^6.11.0"
