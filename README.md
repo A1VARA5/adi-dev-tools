@@ -143,8 +143,11 @@ forge script script/Counter.s.sol \
 
 ```bash
 npx serve frontend
-# Open http://localhost:3000 - must be HTTP, not file://
+# http://localhost:3000           -> opens index.html (Counter)
+# http://localhost:3000/voting.html -> opens voting.html (Voting)
 ```
+
+> If you included the Voting example, `npx serve frontend` opens the Counter by default. Navigate manually to `/voting.html` for the Voting dApp.
 
 ---
 
@@ -167,7 +170,9 @@ const CONTRACT_ADDRESS = "0xYourCounterAddressHere";
 const CONTRACT_ADDRESS = "0xYourVotingAddressHere";
 ```
 
-Then `npx serve frontend` and open `http://localhost:3000`.
+Then `npx serve frontend` and open:
+- `http://localhost:3000` for the Counter
+- `http://localhost:3000/voting.html` for the Voting dApp
 
 - **`index.html`** is always included. It reads the Counter value on load and lets a connected wallet call `increment()` and `setNumber()`.
 - **`voting.html`** is included when you opt in to the Voting example. It lists all proposals with live vote counts and progress bars, lets wallets cast one vote each, and lets the contract owner close voting.
@@ -338,17 +343,17 @@ node packages/create-adi-app/dist/index.js my-test-project
 ```
 adi-dev-tools/
 +-- packages/
-¦   +-- sdk/               ? @adi-devtools/sdk
-¦   +-- hardhat-plugin/    ? hardhat-adi-network
-¦   +-- contracts/         ? @adi-devtools/contracts
-¦   +-- create-adi-app/    ? create-adi-app (CLI)
-¦       +-- templates/
-¦           +-- hardhat/   ? copied into new Hardhat projects
-¦           +-- foundry/   ? copied into new Foundry projects
+ï¿½   +-- sdk/               ? @adi-devtools/sdk
+ï¿½   +-- hardhat-plugin/    ? hardhat-adi-network
+ï¿½   +-- contracts/         ? @adi-devtools/contracts
+ï¿½   +-- create-adi-app/    ? create-adi-app (CLI)
+ï¿½       +-- templates/
+ï¿½           +-- hardhat/   ? copied into new Hardhat projects
+ï¿½           +-- foundry/   ? copied into new Foundry projects
 +-- examples/
-¦   +-- counter-dapp/          ? Hardhat + Counter + HTML frontend
-¦   +-- voting-dapp/           ? Foundry + Voting + HTML frontend
-¦   +-- gasless-voting-dapp/   ? Foundry + paymaster reference contract + HTML frontend
+ï¿½   +-- counter-dapp/          ? Hardhat + Counter + HTML frontend
+ï¿½   +-- voting-dapp/           ? Foundry + Voting + HTML frontend
+ï¿½   +-- gasless-voting-dapp/   ? Foundry + paymaster reference contract + HTML frontend
 +-- docker/                ? Local ADI node (Linux only)
 +-- pnpm-workspace.yaml
 +-- package.json
