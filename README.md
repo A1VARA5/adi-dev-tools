@@ -1,4 +1,4 @@
-# ADI Dev Tools
+﻿# ADI Dev Tools
 
 [![CI](https://github.com/A1VARA5/adi-dev-tools/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/A1VARA5/adi-dev-tools/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -8,7 +8,7 @@
 [![npm](https://img.shields.io/npm/v/create-adi-app?label=create-adi-app)](https://npmjs.com/package/create-adi-app)
 [![npm downloads](https://img.shields.io/npm/dw/@adi-devtools/sdk?label=sdk%20downloads)](https://npmjs.com/package/@adi-devtools/sdk)
 
-The missing developer ecosystem for [ADI Chain](https://docs.adi.foundation) — a ZK rollup L2 secured by Ethereum.
+The missing developer ecosystem for [ADI Chain](https://docs.adi.foundation) - a ZK rollup L2 secured by Ethereum.
 
 ADI Chain is fully EVM-compatible but had zero developer-facing tooling. This monorepo fills every gap.
 
@@ -44,7 +44,7 @@ import { ADI_TESTNET, getADIProvider, switchToADITestnet } from "@adi-devtools/s
 const provider = getADIProvider("testnet");
 const block = await provider.getBlockNumber();
 
-// In browser — MetaMask
+// In browser - MetaMask
 await switchToADITestnet();
 ```
 
@@ -55,7 +55,7 @@ await switchToADITestnet();
 | Chain ID | `99999` | `36900` |
 | RPC | `https://rpc.ab.testnet.adifoundation.ai` | `https://rpc.adifoundation.ai` |
 | Explorer | `https://explorer.ab.testnet.adifoundation.ai` | `https://explorer.adifoundation.ai` |
-| Faucet | `http://faucet.ab.testnet.adifoundation.ai` | — |
+| Faucet | `http://faucet.ab.testnet.adifoundation.ai` | - |
 
 ## Monorepo setup
 
@@ -69,7 +69,7 @@ pnpm build
 
 ## About ADI Chain ZK proofs
 
-Every dApp on ADI Chain is automatically a ZK dApp. You deploy standard Solidity. The Airbender prover batches transactions, generates a STARK proof, wraps it into FFLONK, and posts it to Ethereum L1 — all transparent to developers. You do not write ZK circuits.
+Every dApp on ADI Chain is automatically a ZK dApp. You deploy standard Solidity. The Airbender prover batches transactions, generates a STARK proof, wraps it into FFLONK, and posts it to Ethereum L1 - all transparent to developers. You do not write ZK circuits.
 
 ## Links
 
