@@ -117,6 +117,10 @@ export const BASE_TOKEN_ABI = [
 /**
  * Nonce storage for all accounts.
  * Custom smart accounts use this to manage their transaction nonces.
+ *
+ * ⚠️  External callability: getMinNonce() and getKeyedNonce() can be called via eth_call.
+ *     isNonceUsed() and deployment/increment functions are restricted to system callers.
+ * For simple nonce reads, prefer: provider.getTransactionCount(address)
  */
 export const NONCE_HOLDER_ABI = [
   {
@@ -204,8 +208,14 @@ export const NONCE_HOLDER_ABI = [
 // ─── ISystemContext ───────────────────────────────────────────────────────────
 /**
  * Read chain metadata: chainId, gas price, block/batch numbers, timestamps, etc.
- * Useful for Solidity contracts that need on-chain chain info,
- * or for off-chain scripts querying chain state via ethers/viem.
+ *
+ * ⚠️  These functions are BOOTLOADER-INTERNAL — they return 0x when called externally via eth_call.
+ *     This ABI is intended for Solidity contracts calling SystemContext on-chain (e.g. require(SystemContext.chainId() == 99999)).
+ *
+ * For off-chain scripts, use provider methods instead:
+ *   - chainId     → provider.getNetwork()  → network.chainId
+ *   - gasPrice    → provider.getFeeData()  → feeData.gasPrice
+ *   - blockNumber → provider.getBlockNumber()
  */
 export const SYSTEM_CONTEXT_ABI = [
   {

@@ -1,6 +1,6 @@
 {
   "name": "@adi-devtools/contracts",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Solidity contract templates and system contract ABIs for ADI Chain",
   "files": ["src", "dist"],
   "exports": {
