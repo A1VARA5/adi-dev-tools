@@ -11,9 +11,11 @@ contract Voting {
     address public immutable owner;
     string public title;
     bool public active;
+    uint256 public totalVotes;
 
     Proposal[] public proposals;
     mapping(address => bool) public hasVoted;
+    mapping(address => uint256) public voterChoice;
 
     event VoteCast(address indexed voter, uint256 indexed proposalIndex);
     event VotingClosed();
@@ -35,12 +37,29 @@ contract Voting {
         }
     }
 
+    /// @notice Cast a vote. Each address may vote once.
     function vote(uint256 proposalIndex) external whenActive {
         if (hasVoted[msg.sender]) revert AlreadyVoted();
         if (proposalIndex >= proposals.length) revert InvalidProposal();
         hasVoted[msg.sender] = true;
+        voterChoice[msg.sender] = proposalIndex;
         proposals[proposalIndex].voteCount++;
+        totalVotes++;
         emit VoteCast(msg.sender, proposalIndex);
+    }
+
+    /// @notice Returns all proposals with their vote counts in one call (for frontends).
+    function getAllProposals()
+        external
+        view
+        returns (string[] memory descriptions, uint256[] memory voteCounts)
+    {
+        descriptions = new string[](proposals.length);
+        voteCounts = new uint256[](proposals.length);
+        for (uint256 i = 0; i < proposals.length; i++) {
+            descriptions[i] = proposals[i].description;
+            voteCounts[i] = proposals[i].voteCount;
+        }
     }
 
     function proposalCount() external view returns (uint256) { return proposals.length; }
