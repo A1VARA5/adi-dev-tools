@@ -64,8 +64,22 @@ if (balance === 0n) {
   process.exit(1);
 }
 
+// Default constructor arguments per contract.
+// Override at runtime: DEPLOY_ARGS='["My Poll",["Yes","No"]]' node deploy.mjs
+const DEFAULT_ARGS = {
+  Voting: ["My ADI Poll", ["Option A", "Option B", "Option C"]],
+};
+
+const constructorArgs = process.env.DEPLOY_ARGS
+  ? JSON.parse(process.env.DEPLOY_ARGS)
+  : (DEFAULT_ARGS[CONTRACT_NAME] ?? []);
+
+if (constructorArgs.length > 0) {
+  console.log(`  Constructor args: ${JSON.stringify(constructorArgs)}\n`);
+}
+
 const factory = new ethers.ContractFactory(artifact.abi, artifact.bytecode, wallet);
-const contract = await factory.deploy();
+const contract = await factory.deploy(...constructorArgs);
 const tx = contract.deploymentTransaction();
 console.log(`  Tx hash: ${tx?.hash}`);
 
