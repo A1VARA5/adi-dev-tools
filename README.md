@@ -32,6 +32,9 @@ ADI Chain is fully EVM-compatible but had zero developer-facing tooling. This mo
 | [`examples/counter-dapp`](examples/counter-dapp) | Hardhat + HTML | Simple on-chain counter — increment, set value, read state |
 | [`examples/voting-dapp`](examples/voting-dapp) | Foundry + HTML | Production-ready voting dApp — proposals, vote counts, progress bars, single vote per wallet |
 | [`examples/gasless-voting-dapp`](examples/gasless-voting-dapp) | Foundry + HTML | Voting dApp + `GaslessPaymaster.sol` reference contract — **paymaster is not active on current ADI Chain OS**, included for future protocol support |
+| [`examples/nft-mint`](examples/nft-mint) | Foundry + HTML | ERC-721 collection — mint tokens, browse the gallery, owner controls for price and supply |
+| [`examples/simple-dao`](examples/simple-dao) | Foundry + HTML | On-chain DAO — join, create proposals, vote FOR/AGAINST, finalize results, execute treasury releases |
+| [`examples/token-faucet`](examples/token-faucet) | Foundry + HTML | Testnet ADI faucet — claim tokens with a cooldown timer, live claims history, owner panel |
 
 All examples include a single-file HTML frontend (ethers.js from CDN) that connects to MetaMask — no build step, no bundler.
 
