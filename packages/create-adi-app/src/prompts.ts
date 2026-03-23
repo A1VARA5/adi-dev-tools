@@ -74,8 +74,8 @@ export async function runPrompts(input: PromptInput = {}): Promise<ProjectAnswer
   });
 
   return {
-    projectName: input.projectName ?? answers.projectName,
-    template: (input.template as "hardhat" | "foundry") ?? answers.template,
+    projectName: input.projectName || answers.projectName,
+    template: ((input.template || answers.template) as "hardhat" | "foundry"),
     includeVotingExample: answers.includeVotingExample,
     network: answers.network,
   };
