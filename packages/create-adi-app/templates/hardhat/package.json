@@ -6,8 +6,12 @@
   "scripts": {
     "compile": "hardhat compile",
     "test": "hardhat test",
-    "deploy:testnet": "hardhat ignition deploy ignition/modules/Counter.ts --network adi-testnet",
-    "deploy:mainnet": "hardhat ignition deploy ignition/modules/Counter.ts --network adi-mainnet"
+    "deploy": "node deploy.mjs",
+    "deploy:mainnet": "NETWORK=mainnet node deploy.mjs"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "ethers": "^6.0.0"
   },
   "devDependencies": {
     "hardhat": "^3.1.5",

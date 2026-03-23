@@ -48,10 +48,8 @@ export async function scaffoldProject(opts: ScaffoldOptions): Promise<void> {
   if (template === "hardhat") {
     console.log(`    ${pc.cyan("npm install")}`);
     console.log(`    ${pc.cyan("# Set TESTNET_PRIVATE_KEY in .env")}`);
-    console.log(`    ${pc.cyan("npx hardhat compile")}`);
-    console.log(
-      `    ${pc.cyan("npx hardhat ignition deploy ignition/modules/Counter.ts --network adi-testnet")}`
-    );
+    console.log(`    ${pc.cyan("npm run compile")}`);
+    console.log(`    ${pc.cyan("npm run deploy")}`);
   } else {
     console.log(`    ${pc.cyan("# Set TESTNET_PRIVATE_KEY in .env")}`);
     console.log(`    ${pc.cyan("forge build")}`);
