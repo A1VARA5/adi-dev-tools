@@ -1,14 +1,21 @@
 {
   "name": "@adi-devtools/contracts",
-  "version": "0.1.0",
-  "description": "Solidity contract templates for building on ADI Chain",
-  "files": ["src"],
-  "scripts": {
-    "build": "forge build",
-    "test": "forge test",
-    "clean": "forge clean"
+  "version": "0.1.1",
+  "description": "Solidity contract templates and system contract ABIs for ADI Chain",
+  "files": ["src", "dist"],
+  "exports": {
+    "./system": {
+      "types": "./dist/system/index.d.ts",
+      "default": "./dist/system/index.js"
+    }
   },
-  "keywords": ["adi", "adi-chain", "solidity", "smart-contracts", "erc20", "erc721", "voting"],
+  "scripts": {
+    "build": "tsc",
+    "build:solidity": "forge build",
+    "test": "forge test",
+    "clean": "forge clean && rimraf dist"
+  },
+  "keywords": ["adi", "adi-chain", "solidity", "smart-contracts", "erc20", "erc721", "voting", "system-contracts", "abi"],
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -18,5 +25,9 @@
   "homepage": "https://github.com/A1VARA5/adi-dev-tools/tree/main/packages/contracts#readme",
   "bugs": {
     "url": "https://github.com/A1VARA5/adi-dev-tools/issues"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.0",
+    "typescript": "^5.4.0"
   }
 }

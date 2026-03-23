@@ -12,7 +12,14 @@ importers:
         specifier: ^5.4.0
         version: 5.9.3
 
-  packages/contracts: {}
+  packages/contracts:
+    devDependencies:
+      rimraf:
+        specifier: ^5.0.0
+        version: 5.0.10
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
 
   packages/create-adi-app:
     dependencies:
