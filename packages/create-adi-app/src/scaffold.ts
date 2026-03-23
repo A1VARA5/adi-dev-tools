@@ -32,6 +32,7 @@ export async function scaffoldProject(opts: ScaffoldOptions): Promise<void> {
     // Remove voting files if they exist
     await fs.remove(path.join(contractsDir, "Voting.sol")).catch(() => {});
     await fs.remove(path.join(scriptDir, "Voting.s.sol")).catch(() => {});
+    await fs.remove(path.join(outputDir, "frontend", "voting.html")).catch(() => {});
   }
 
   // 4. Write .env file (copy from .env.example)
@@ -63,6 +64,9 @@ export async function scaffoldProject(opts: ScaffoldOptions): Promise<void> {
     console.log(`    ${pc.cyan("# Set TESTNET_PRIVATE_KEY in .env")}`);
     console.log(`    ${pc.cyan("npm run compile")}`);
     console.log(`    ${pc.cyan("npm run deploy")}`);
+    if (includeVotingExample) {
+      console.log(`    ${pc.cyan("CONTRACT=Voting npm run deploy")}`);
+    }
   } else {
     console.log(`    ${pc.cyan("# Set TESTNET_PRIVATE_KEY in .env")}`);
     console.log(`    ${pc.cyan("forge install foundry-rs/forge-std")}`);
@@ -72,6 +76,10 @@ export async function scaffoldProject(opts: ScaffoldOptions): Promise<void> {
         "forge script script/Counter.s.sol --rpc-url https://rpc.ab.testnet.adifoundation.ai --broadcast --private-key $TESTNET_PRIVATE_KEY"
       )}`
     );
+  }
+
+  if (includeVotingExample) {
+    console.log(`\n  ${pc.yellow("Voting frontend")}: paste your Voting contract address into ${pc.cyan("frontend/voting.html")} line 234, then serve with ${pc.cyan("npx serve frontend")}`);
   }
 
   console.log(`\n  Testnet faucet: ${pc.underline("http://faucet.ab.testnet.adifoundation.ai")}`);
