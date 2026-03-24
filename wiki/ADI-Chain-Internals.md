@@ -6,15 +6,18 @@ What makes ADI Chain different from a standard EVM chain, and what that means fo
 
 ## Architecture overview
 
-ADI Chain is a ZK rollup L2 secured by Ethereum. It is built on the **Airbender** proving system:
+ADI Chain is a ZK rollup L2 secured by Ethereum, built on the **Airbender** proving system.
 
-1. Transactions are submitted to the ADI sequencer via standard JSON-RPC
-2. The sequencer batches transactions and produces a state transition
-3. The Airbender prover generates a STARK proof of the state transition
-4. The STARK proof is wrapped into a FFLONK proof and posted to Ethereum L1 for verification
-5. Only batches with valid proofs are finalised on L1
+```mermaid
+graph LR
+    User["dApp / Wallet"] -->|JSON-RPC| Seq["Sequencer\nBatches transactions"]
+    Seq -->|State transition| Prover["Airbender Prover\nGenerates STARK proof"]
+    Prover -->|STARK wrapped as FFLONK| L1["Ethereum L1\nVerifies + finalises"]
+    L1 -->|Finality| User
+```
 
-Developers write standard Solidity and interact via standard ethers.js / wagmi / viem. **No ZK circuits, no proof SDK, no extra configuration.** ZK security is automatic.
+Developers write standard Solidity and interact via standard ethers.js / wagmi / viem.  
+**No ZK circuits, no proof SDK, no extra configuration.** ZK security is automatic.
 
 ---
 

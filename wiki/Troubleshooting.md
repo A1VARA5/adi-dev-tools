@@ -1,12 +1,13 @@
 # Troubleshooting
 
-Common errors and how to fix them.
+Common errors and how to fix them. Click any heading to expand.
 
 ---
 
 ## Installation
 
-### `npm install` fails with `ENOENT: package.json not found`
+<details>
+<summary><strong>npm install fails - ENOENT: package.json not found</strong></summary>
 
 You ran `npm install` in the wrong directory. `cd` into your project first:
 
@@ -15,7 +16,10 @@ cd my-dapp
 npm install
 ```
 
-### `pnpm build` (monorepo) fails - `Cannot find module '@adi-devtools/sdk'`
+</details>
+
+<details>
+<summary><strong>pnpm build (monorepo) fails - Cannot find module '@adi-devtools/sdk'</strong></summary>
 
 A package earlier in the build chain failed silently. Build packages individually to find the problem:
 
@@ -28,11 +32,14 @@ pnpm --filter create-adi-app build
 
 Fix each in order - later packages depend on earlier ones.
 
+</details>
+
 ---
 
 ## MetaMask and browser
 
-### MetaMask does not appear / `window.ethereum` is undefined
+<details>
+<summary><strong>MetaMask does not appear / window.ethereum is undefined</strong></summary>
 
 MetaMask does not inject into `file://` URLs. Serve the frontend over HTTP:
 
@@ -41,7 +48,10 @@ npx serve frontend
 # Open http://localhost:3000 - NOT file:///path/to/index.html
 ```
 
-### Wrong network / transactions fail silently
+</details>
+
+<details>
+<summary><strong>Wrong network / transactions fail silently</strong></summary>
 
 Make sure MetaMask is on ADI Testnet (Chain ID 99999). The `switchToADITestnet()` helper will do this automatically:
 
@@ -50,20 +60,26 @@ import { switchToADITestnet } from "@adi-devtools/sdk";
 await switchToADITestnet();
 ```
 
+</details>
+
 ---
 
 ## Deployment
 
-### Frontend connects but contract calls fail / reverts
+<details>
+<summary><strong>Frontend connects but contract calls fail / revert</strong></summary>
 
 The scaffold ships with a zero placeholder address. After deploying, paste your address:
 
 ```javascript
-// frontend/index.html  (line 56)
-const CONTRACT_ADDRESS = "0xYourCounterAddressHere";
+// frontend/index.html  (around line 56)
+const CONTRACT_ADDRESS = "0xYourDeployedAddressHere";
 ```
 
-### Zero balance / deployment reverts immediately
+</details>
+
+<details>
+<summary><strong>Zero balance / deployment reverts immediately</strong></summary>
 
 Get free testnet ADI before deploying:
 
@@ -73,7 +89,10 @@ http://faucet.ab.testnet.adifoundation.ai
 
 The `deploy.mjs` script checks balance and exits with a clear message if it is zero.
 
-### `hardhat ignition deploy` fails - `odd number of digits` or nonce error
+</details>
+
+<details>
+<summary><strong>hardhat ignition deploy fails - odd number of digits or nonce error</strong></summary>
 
 The ADI testnet RPC does not support the `pending` block tag that Hardhat Ignition uses for nonce sync. Use `deploy.mjs` instead:
 
@@ -82,7 +101,10 @@ npm run deploy
 CONTRACT=Voting npm run deploy
 ```
 
-### Private key error: `invalid arrayify value` or `invalid hex string`
+</details>
+
+<details>
+<summary><strong>Private key error - invalid arrayify value or invalid hex string</strong></summary>
 
 Your key must be 64 hex characters. Both formats work - `deploy.mjs` normalises them:
 
@@ -92,11 +114,14 @@ TESTNET_PRIVATE_KEY=abc123...      # without 0x
 TESTNET_PRIVATE_KEY=0xabc123...    # with 0x
 ```
 
+</details>
+
 ---
 
 ## Hardhat
 
-### `hardhat-adi-network` plugin not loading / network not found
+<details>
+<summary><strong>hardhat-adi-network plugin not loading / network not found</strong></summary>
 
 The plugin requires Hardhat v3 and the `plugins: []` array syntax:
 
@@ -105,14 +130,17 @@ import { defineConfig } from "hardhat/config";
 import adiNetworkPlugin from "hardhat-adi-network";
 
 export default defineConfig({
-  plugins: [adiNetworkPlugin],  // v3 style
+  plugins: [adiNetworkPlugin],  // v3 style - NOT require()
   // ...
 });
 ```
 
 Do not use `require("hardhat-adi-network")` (Hardhat v2 pattern).
 
-### Node.js version warning from Hardhat
+</details>
+
+<details>
+<summary><strong>Node.js version warning from Hardhat</strong></summary>
 
 ```
 WARNING: You are using Node.js 25.x which is not supported by Hardhat.
@@ -120,11 +148,14 @@ WARNING: You are using Node.js 25.x which is not supported by Hardhat.
 
 This is cosmetic - everything compiles and deploys on Node 25. To suppress it, switch to Node 22 LTS via `nvm` or `fnm`.
 
+</details>
+
 ---
 
 ## Foundry
 
-### `forge build` fails: `forge-std/Script.sol` not found
+<details>
+<summary><strong>forge build fails - forge-std/Script.sol not found</strong></summary>
 
 Foundry dependencies are git submodules. Install them first:
 
@@ -136,11 +167,14 @@ forge install foundry-rs/forge-std
 forge build
 ```
 
-> As of `create-adi-app@0.1.16` this step is done automatically during scaffold. Only needed if you scaffolded with an older version or set up the project manually.
+> As of `create-adi-app@0.1.16` this step is done automatically during scaffold.
 
-### `Failed to decode private key` on Windows (Foundry)
+</details>
 
-Windows saves `.env` files with CRLF line endings. The `\r` gets appended to the key, making it invalid. Load the `.env` with explicit trimming in PowerShell:
+<details>
+<summary><strong>Failed to decode private key on Windows (CRLF issue)</strong></summary>
+
+Windows saves `.env` files with CRLF line endings. The `\r` gets appended to the key. Load the `.env` with explicit trimming in PowerShell:
 
 ```powershell
 Get-Content .env | ForEach-Object {
@@ -153,7 +187,7 @@ Get-Content .env | ForEach-Object {
 }
 ```
 
-Or pass the key directly - skips `.env` loading entirely:
+Or pass the key directly to skip `.env` loading entirely:
 
 ```powershell
 forge script script/Counter.s.sol `
@@ -162,7 +196,10 @@ forge script script/Counter.s.sol `
   --private-key 0xYourKeyHere
 ```
 
-### Installing Foundry on Windows
+</details>
+
+<details>
+<summary><strong>Installing Foundry on Windows</strong></summary>
 
 The bash installer does not work in PowerShell. Download `foundry_nightly_win32_amd64.zip` from [GitHub Releases](https://github.com/foundry-rs/foundry/releases), extract the three executables to `~/.foundry/bin`, and add that folder to your PATH:
 
@@ -171,13 +208,16 @@ $env:PATH += ";$env:USERPROFILE\.foundry\bin"
 # To persist: System - Environment Variables - Path - New
 ```
 
+</details>
+
 ---
 
 ## SDK / ethers.js
 
-### `zksync-ethers` CDN does not work in browser
+<details>
+<summary><strong>zksync-ethers CDN does not work in browser</strong></summary>
 
-`zksync-ethers` is a Node.js library. Its CDN bundle is broken for browser use. Use plain `ethers@6` instead:
+`zksync-ethers` is a Node.js library. Its CDN bundle does not work in browsers. Use plain `ethers@6` instead:
 
 ```html
 <script type="module">
@@ -186,7 +226,10 @@ import { BrowserProvider, Contract }
 </script>
 ```
 
-### Type-113 transactions rejected
+</details>
+
+<details>
+<summary><strong>Type-113 transactions rejected</strong></summary>
 
 ADI Chain OS does not accept type-113 (ZKSync native AA) transactions. Use standard EIP-1559:
 
@@ -198,29 +241,39 @@ const tx = await signer.sendTransaction({ to, value, data });
 const tx = await signer.sendTransaction({ to, value, data, customData: { ... } });
 ```
 
-### `BASE_TOKEN_ABI.balanceOf` returns garbage / throws
+</details>
 
-`balanceOf` on the base token system contract takes `uint256`, not `address`. Do not call it. Use:
+<details>
+<summary><strong>BASE_TOKEN_ABI.balanceOf returns garbage or throws</strong></summary>
+
+`balanceOf` on the base token system contract takes `uint256`, not `address`. Do not call it directly. Use:
 
 ```typescript
 const balance = await provider.getBalance("0xYourAddress");
 ```
 
+</details>
+
 ---
 
 ## System contracts
 
-### `SYSTEM_CONTEXT_ABI` calls return `0x` or revert
+<details>
+<summary><strong>SYSTEM_CONTEXT_ABI calls return 0x or revert</strong></summary>
 
-`SYSTEM_CONTEXT` is bootloader-internal. It cannot be called via external `eth_call`. For off-chain scripts:
+`SYSTEM_CONTEXT` is bootloader-internal. It cannot be called via external `eth_call`. Use provider methods directly:
 
 ```typescript
-// Use provider methods directly
 const chainId = (await provider.getNetwork()).chainId;
 const blockNumber = await provider.getBlockNumber();
 const feeData = await provider.getFeeData();
 ```
 
-### Paymaster transactions not working
+</details>
+
+<details>
+<summary><strong>Paymaster transactions not working</strong></summary>
 
 Paymaster support (`AA_ENABLED`) is not active on current ADI Chain OS (Airbender). Transactions with paymaster data are submitted as plain EIP-1559. See [[ADI Chain Internals]].
+
+</details>

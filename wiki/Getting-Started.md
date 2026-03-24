@@ -1,6 +1,23 @@
 # Getting Started
 
-Get your first ADI Chain dApp running in under 5 minutes.
+> Get your first ADI Chain dApp running in under 5 minutes.
+
+---
+
+## Which path is right for me?
+
+```mermaid
+flowchart TD
+    Start([Starting a project?]) --> Q1{Existing project?}
+    Q1 -->|No| Q2{Hardhat or Foundry?}
+    Q1 -->|Yes - Hardhat| OC["Option C\nhardhat-adi-network plugin"]
+    Q1 -->|Yes - JS/TS project| OB["Option B\n@adi-devtools/sdk"]
+    Q2 -->|Scaffold it for me| OA["Option A ✅\ncreate-adi-app"]
+    OA --> Faucet["Get testnet ADI\nfaucet.ab.testnet.adifoundation.ai"]
+    OB --> Faucet
+    OC --> Faucet
+    Faucet --> Deploy[Deploy and test]
+```
 
 ---
 

@@ -4,7 +4,7 @@
 
 ---
 
-### Getting started
+### Get started
 - [[Getting Started]]
 - [[Network Reference]]
 - [[CLI Reference]]
