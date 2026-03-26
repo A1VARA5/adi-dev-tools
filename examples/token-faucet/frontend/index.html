@@ -278,12 +278,8 @@ function toast(msg, type = "info") {
 async function connectWallet() {
   if (!window.ethereum) return toast("MetaMask not detected.", "err");
   try {
-    try {
-      await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: ADI_TESTNET.chainId }] });
-    } catch (e) {
-      if (e.code === 4902) await window.ethereum.request({ method: "wallet_addEthereumChain", params: [ADI_TESTNET] });
-      else throw e;
-    }
+    // Add / switch to ADI testnet - wallet_addEthereumChain handles both cases
+    await window.ethereum.request({ method: "wallet_addEthereumChain", params: [ADI_TESTNET] });
     provider = new BrowserProvider(window.ethereum);
     signer   = await provider.getSigner();
     contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);

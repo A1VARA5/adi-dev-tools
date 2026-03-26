@@ -569,25 +569,17 @@ window.connectWallet = async () => {
 };
 
 async function ensureADINetwork() {
-  try {
-    await window.ethereum.request({
-      method: 'wallet_switchEthereumChain',
-      params: [{ chainId: '0x1869F' }], // 99999
-    });
-  } catch (switchErr) {
-    if (switchErr.code === 4902) {
-      await window.ethereum.request({
-        method: 'wallet_addEthereumChain',
-        params: [{
-          chainId: '0x1869F',
-          chainName: 'ADI Testnet',
-          rpcUrls: ['https://rpc.ab.testnet.adifoundation.ai'],
-          nativeCurrency: { name: 'ADI', symbol: 'ADI', decimals: 18 },
-          blockExplorerUrls: ['https://explorer.ab.testnet.adifoundation.ai'],
-        }],
-      });
-    }
-  }
+  // Add / switch to ADI testnet - wallet_addEthereumChain handles both cases
+  await window.ethereum.request({
+    method: 'wallet_addEthereumChain',
+    params: [{
+      chainId: '0x1869F',
+      chainName: 'ADI Testnet',
+      rpcUrls: ['https://rpc.ab.testnet.adifoundation.ai'],
+      nativeCurrency: { name: 'ADI', symbol: 'ADI', decimals: 18 },
+      blockExplorerUrls: ['https://explorer.ab.testnet.adifoundation.ai'],
+    }],
+  });
 }
 
 // ── Refresh all state ─────────────────────────────────────────────────────────
