@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #07090f;
+    color: #e2e8f0;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Dot grid background */
+  .dot-grid {
+    background-image: radial-gradient(circle, #1a2235 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #07090f; }
+  ::-webkit-scrollbar-thumb { background: #1a2235; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #2a3555; }
+}
+
+@layer components {
+  /* Terminal window chrome */
+  .terminal-chrome {
+    @apply rounded-xl border border-border bg-card overflow-hidden;
+    box-shadow: 0 0 0 1px #1a2235, 0 24px 64px -12px rgba(0,0,0,0.7);
+  }
+
+  .terminal-titlebar {
+    @apply flex items-center gap-2 px-4 py-3 border-b border-border bg-surface;
+  }
+
+  .terminal-dot {
+    @apply w-3 h-3 rounded-full;
+  }
+
+  /* Code token colors */
+  .tok-cmd    { color: #e2e8f0; }
+  .tok-kw     { color: #c084fc; }
+  .tok-fn     { color: #60a5fa; }
+  .tok-str    { color: #4ade80; }
+  .tok-num    { color: #fb923c; }
+  .tok-comment{ color: #4a5568; font-style: italic; }
+  .tok-dim    { color: #4a5568; }
+  .tok-ok     { color: #22c55e; }
+  .tok-warn   { color: #f59e0b; }
+  .tok-err    { color: #ef4444; }
+  .tok-accent { color: #06b6d4; }
+  .tok-purple { color: #c084fc; }
+  .tok-yellow { color: #fbbf24; }
+
+  /* Pill chip */
+  .chip {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono font-medium border;
+  }
+
+  /* Section label */
+  .section-label {
+    @apply font-mono text-xs text-muted tracking-widest uppercase;
+  }
+
+  /* Gradient top border card */
+  .border-top-glow {
+    position: relative;
+  }
+  .border-top-glow::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 20%;
+    right: 20%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #6366f1, transparent);
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    background: linear-gradient(135deg, #e2e8f0 30%, #6366f1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glow-primary {
+    box-shadow: 0 0 20px #6366f130, 0 0 60px #6366f110;
+  }
+
+  .scrollbar-x-hidden {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-x-hidden::-webkit-scrollbar {
+    display: none;
+  }
+}
